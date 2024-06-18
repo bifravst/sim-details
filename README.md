@@ -43,25 +43,27 @@ The possible timespans are: last hour | last day | last week | last month
 | lastHour  | 1                  | 1             | 1              |
 | lastDay   | 15                 | 24            | 5              |
 | lastWeek  | 60                 | 24\*7         | 5              |
-| lastMonth | 60 (\*24 ?)        | 24\*30        | 15             |
+| lastMonth | 60 \*24            | 24\*30        | 15             |
 
 The response would be different based on the timespan, but for the last month it
 would be:
 
 ```json
 {
-    "measureValue": "bytes",
-    "lastMonth":
+  "lastMonth": [
     {
-        "2020-06-01": 2646712,
-        "2020-06-02": 26837,
-        ...
-        "2020-06-30": 1000,
+      "date": "2020-06-01",
+      "usedBytes": 2646712
+    },
+    {
+      "data": "2020-06-02",
+      "usedBytes": 26837
     }
+  ]
 }
 ```
 
-if we are using daily updates and not hourly updates.
+with daily updates.
 
 ## The steps involved with the first request
 
