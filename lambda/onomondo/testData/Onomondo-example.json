@@ -1,0 +1,52 @@
+{
+  "id": "009999999",
+  "msisdn": "999999999999999",
+  "label": null,
+  "network_whitelist": "Global",
+  "imei_lock": null,
+  "imei": "358299849999999",
+  "iccid": "89457300000099999999",
+  "imsi": "999999999999999",
+  "connector": null,
+  "activated": true,
+  "ipv4": "1.2.3.4",
+  "online_at": "2024-01-22T02:23:47.398Z",
+  "online": true,
+  "last_came_online_at": "2024-01-22T02:23:47.398Z",
+  "network": {
+    "name": "Telenor Norge",
+    "country": "Norway",
+    "country_code": "NO",
+    "mcc": "242",
+    "mnc": "01"
+  },
+  "usage": 934411,
+  "tags": [
+    {
+      "name": "Nordic Development Kit",
+      "id": "408de4f2-0664-45f1-8fa6-4add99775437",
+      "can_write": false,
+      "color": "#2fc9eb"
+    }
+  ],
+  "data_limit": {
+    "used": 794716,
+    "total": 10000000,
+    "type": "monthly",
+    "period": "202401",
+    "alert_threshold": null,
+    "resets_at": "2024-02-01T00:00:00.000Z"
+  },
+  "location": {
+    "lat": 63.4207521,
+    "lng": 10.4371442,
+    "cell_id": 21679616,
+    "location_area_code": null,
+    "accuracy": 1232.887
+  },
+  "technologies": {
+    "sms": true,
+    "2g_3g": true,
+    "4g": true
+  }
+}

@@ -4,7 +4,11 @@ import {
 } from '@bifravst/aws-cdk-lambda-helpers/layer'
 import type pJson from '../package.json'
 
-const dependencies: Array<keyof (typeof pJson)['dependencies']> = []
+const dependencies: Array<keyof (typeof pJson)['dependencies']> = [
+	'@nordicsemiconductor/from-env',
+	'@hello.nrfcloud.com/proto',
+	'@sinclair/typebox',
+]
 
 export const packBaseLayer = async (): Promise<PackedLayer> =>
 	packLayer({
