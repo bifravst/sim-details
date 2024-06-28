@@ -1,0 +1,119 @@
+name: Test and Release
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: write
+  issues: write
+  actions: write
+
+env:
+  CI: 1
+  FORCE_COLOR: 3
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-22.04
+
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci --no-audit
+
+      - name: Check TypeScript
+        run: npx tsc
+
+      - name: Check source code with eslint
+        run: npx eslint .
+
+      - name: Check if source code is properly formatted
+        run: npx prettier -c ./
+
+      - name: Run unit tests
+        run: npm test
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          # The role is set up via https://github.com/bifravst/ci
+          # secrets.AWS_ACCOUNT_ID_CI is an organization secret
+          role-to-assume: |
+            arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID_CI }}:role/${{ github.repository_owner }}-ci-${{ github.event.repository.name }}
+          # vars.AWS_REGION_CI is an organization variable
+          aws-region: ${{ vars.AWS_REGION_CI }}
+
+      - name: Generate Stack ID
+        run: |
+          RANDOM_STRING=`node -e "const crypto = require('crypto'); process.stdout.write(crypto.randomBytes(Math.ceil(8 * 0.5)).toString('hex').slice(0, 8));"`
+          echo "STACK_NAME=sim-details-${RANDOM_STRING}" >> $GITHUB_ENV
+
+      - name: Deploy solution stack
+        env:
+          JSII_SILENCE_WARNING_UNTESTED_NODE_VERSION: 1
+        run: npx cdk deploy --require-approval never
+
+      - name: Run End-to-End Tests
+        run: npm run test:e2e
+
+      - name: Print failed End-to-End tests
+        if: failure()
+        run:
+          cat e2e-test-result.json | npx tsx --no-warnings
+          ./features/console-reporter.ts  --only-failed --with-timestamps
+
+      - name: Clean up End-to-End test resources
+        env:
+          JSII_SILENCE_WARNING_UNTESTED_NODE_VERSION: 1
+        if: always()
+        run: |
+          npx cdk destroy -f
+
+  release:
+    needs:
+      - e2e-tests
+
+    runs-on: ubuntu-22.04
+
+    if: github.ref == 'refs/heads/saga'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci --no-audit
+
+      - name: Semantic release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          # The role is set up via https://github.com/bifravst/ci
+          # secrets.AWS_ACCOUNT_ID_CI is an organization secret
+          role-to-assume: |
+            arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID_CI }}:role/${{ github.repository_owner }}-ci-${{ github.event.repository.name }}
+          # vars.AWS_REGION_CI is an organization variable
+          aws-region: ${{ vars.AWS_REGION_CI }}
+
+      - name: Trigger deployment workflow
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run deploy.yaml
