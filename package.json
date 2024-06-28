@@ -47,6 +47,10 @@
       "eslint"
     ]
   },
+  "engines": {
+    "node": ">=20",
+    "npm": ">=10"
+  },
   "prettier": "@bifravst/prettier-config",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "3.600.0",
