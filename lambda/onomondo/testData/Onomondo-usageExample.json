@@ -1,0 +1,316 @@
+{
+  "pagination": {
+    "next_page": "MjAyMi0wMS0yOVQwMDozMDowMC4wMDBaQDAwMDAwODY2MA==",
+    "has_more": true
+  },
+  "usage": [
+    {
+      "time": "2020-06-04 06:49:41",
+      "bill_id": "4db28719-18ed-323c-a367-c1498fbd96d5",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "187331f5-8417-3422-b364-49d47f0efc2a",
+      "bytes": 315,
+      "country_code": "dk",
+      "network_type": "4G",
+      "network": {
+        "mcc": "238",
+        "mnc": "01"
+      }
+    },
+    {
+      "time": "2020-06-04 06:49:55",
+      "bill_id": "b28f15e5-7660-3da8-bcd8-ef1ce13a1664",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "f452dc04-f061-3071-81ea-11a2fd73ecb7",
+      "bytes": 39194,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "66"
+      }
+    },
+    {
+      "time": "2020-06-04 07:04:56",
+      "bill_id": "73a5df37-562e-3a2d-9ba7-a65a9a79ed12",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "d9b4c57b-78c3-3057-88e2-1bf7b7f433c1",
+      "bytes": 210076,
+      "country_code": "dk",
+      "network_type": "4G",
+      "network": {
+        "mcc": "238",
+        "mnc": "20"
+      }
+    },
+    {
+      "time": "2020-06-04 07:19:57",
+      "bill_id": "f7c003ee-2cd1-3f60-ac28-f22acb49553c",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "d9b4c57b-78c3-3057-88e2-1bf7b7f433c1",
+      "bytes": 214420,
+      "country_code": "dk",
+      "network_type": "4G",
+      "network": {
+        "mcc": "238",
+        "mnc": "20"
+      }
+    },
+    {
+      "time": "2020-06-04 07:34:56",
+      "bill_id": "f664b5bd-4759-392c-a5ec-653fb56f9f40",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "d9b4c57b-78c3-3057-88e2-1bf7b7f433c1",
+      "bytes": 723653,
+      "country_code": "dk",
+      "network_type": "4G",
+      "network": {
+        "mcc": "238",
+        "mnc": "20"
+      }
+    },
+    {
+      "time": "2020-06-04 07:39:22",
+      "bill_id": "fb5f538d-c68c-3713-9fa8-403cdefe16f4",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "d9b4c57b-78c3-3057-88e2-1bf7b7f433c1",
+      "bytes": 604,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "20"
+      }
+    },
+    {
+      "time": "2020-06-04 08:01:47",
+      "bill_id": "2a0f1e0c-48a1-338c-977b-ebc10420f900",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "d9b4c57b-78c3-3057-88e2-1bf7b7f433c1",
+      "bytes": 122829,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "20"
+      }
+    },
+    {
+      "time": "2020-06-04 08:16:48",
+      "bill_id": "5fb1d8cb-ed07-3ba8-bca2-7186da1319e3",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "d9b4c57b-78c3-3057-88e2-1bf7b7f433c1",
+      "bytes": 487038,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "20"
+      }
+    },
+    {
+      "time": "2020-06-04 08:31:47",
+      "bill_id": "25d28bf8-cb0d-3392-8961-73d02c3fac89",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "d9b4c57b-78c3-3057-88e2-1bf7b7f433c1",
+      "bytes": 198414,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "20"
+      }
+    },
+    {
+      "time": "2020-06-04 08:46:48",
+      "bill_id": "7df94cbf-c695-3851-be4a-03466f769d5f",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "d9b4c57b-78c3-3057-88e2-1bf7b7f433c1",
+      "bytes": 44073,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "20"
+      }
+    },
+    {
+      "time": "2020-06-04 09:01:47",
+      "bill_id": "6a600e42-18bd-38d4-9be8-5a54f78fc329",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "d9b4c57b-78c3-3057-88e2-1bf7b7f433c1",
+      "bytes": 55620,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "20"
+      }
+    },
+    {
+      "time": "2020-06-04 09:16:48",
+      "bill_id": "68b8b88c-0d20-3e22-a7d0-9a122881e247",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "d9b4c57b-78c3-3057-88e2-1bf7b7f433c1",
+      "bytes": 37697,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "20"
+      }
+    },
+    {
+      "time": "2020-06-04 09:31:49",
+      "bill_id": "a1d60380-aa07-3cbd-97e9-0d1c77c8760d",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "d9b4c57b-78c3-3057-88e2-1bf7b7f433c1",
+      "bytes": 39847,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "20"
+      }
+    },
+    {
+      "time": "2020-06-04 09:46:48",
+      "bill_id": "ee6c1556-436a-3104-914a-a51fe3561210",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "d9b4c57b-78c3-3057-88e2-1bf7b7f433c1",
+      "bytes": 253790,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "20"
+      }
+    },
+    {
+      "time": "2020-06-04 10:01:49",
+      "bill_id": "1ba91ff9-e97b-3ea5-b65e-9c40c0671afd",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "d9b4c57b-78c3-3057-88e2-1bf7b7f433c1",
+      "bytes": 52111,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "20"
+      }
+    },
+    {
+      "time": "2020-06-04 10:16:48",
+      "bill_id": "f74bdfd0-6cab-3bcb-ae93-af5cd06f2b58",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "d9b4c57b-78c3-3057-88e2-1bf7b7f433c1",
+      "bytes": 32461,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "20"
+      }
+    },
+    {
+      "time": "2020-06-04 10:31:49",
+      "bill_id": "13900d70-43e7-3984-a3f7-cd121f5ffa84",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "d9b4c57b-78c3-3057-88e2-1bf7b7f433c1",
+      "bytes": 26376,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "20"
+      }
+    },
+    {
+      "time": "2020-06-04 10:46:48",
+      "bill_id": "7567b0d4-50e2-3bfc-afe3-c14d6fbcc904",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "d9b4c57b-78c3-3057-88e2-1bf7b7f433c1",
+      "bytes": 48425,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "20"
+      }
+    },
+    {
+      "time": "2020-06-04 11:01:49",
+      "bill_id": "c576902b-92b3-3b66-aeaf-d6740bcf0d7b",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "d9b4c57b-78c3-3057-88e2-1bf7b7f433c1",
+      "bytes": 32932,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "20"
+      }
+    },
+    {
+      "time": "2020-06-04 11:16:47",
+      "bill_id": "b06b0ad0-d449-3e4b-a81c-561f24f5ed06",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "d9b4c57b-78c3-3057-88e2-1bf7b7f433c1",
+      "bytes": 26837,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "20"
+      }
+    },
+    {
+      "time": "2020-06-05 11:16:47",
+      "bill_id": "b06b0ad0-d449-3e4b-a81c-561f24f5ed06",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "d9b4c57b-78c3-3057-88e2-1bf7b7f433c1",
+      "bytes": 26837,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "20"
+      }
+    },
+    {
+      "time": "2020-06-06 11:16:47",
+      "bill_id": "b06b0ad0-d449-3e4b-a81c-561f24f5ed06",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "d9b4c57b-78c3-3057-88e2-1bf7b7f433c1",
+      "bytes": 1000,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "20"
+      }
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+{
+  "pagination": {
+    "next_page": "MjAyMi0wMS0yOVQwMDozMDowMC4wMDBaQDAwMDAwODY2MA==",
+    "has_more": true
+  },
+  "usage": [
+    {
+      "time": "2020-02-03 07:49:13",
+      "bill_id": "7c5f95c7-c0ff-352e-93e2-5370a6d37b42",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "eff9c0b2-16b1-3eb3-aab2-692d7a2ec60e",
+      "bytes": 1424843,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "66"
+      }
+    },
+    {
+      "time": "2020-02-03 08:04:14",
+      "bill_id": "0538f940-b382-339c-b2a3-19c788c385f6",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022734",
+      "session_id": "eff9c0b2-16b1-3eb3-aab2-692d7a2ec60e",
+      "bytes": 1103,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "66"
+      }
+    },
+    {
+      "time": "2020-02-03 08:19:13",
+      "bill_id": "07de7724-7460-3399-b49c-c7e7d51de870",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022735",
+      "session_id": "eff9c0b2-16b1-3eb3-aab2-692d7a2ec60e",
+      "bytes": 1634,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "66"
+      }
+    },
+    {
+      "time": "2020-02-03 08:34:13",
+      "bill_id": "14eb7e8e-2de2-3514-9105-c4ff4942b8ff",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022735",
+      "session_id": "eff9c0b2-16b1-3eb3-aab2-692d7a2ec60e",
+      "bytes": 1269,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "66"
+      }
+    },
+    {
+      "time": "2020-02-03 08:49:12",
+      "bill_id": "76333ce7-76b4-30fd-bd4e-5d4475d4e4cc",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022736",
+      "session_id": "eff9c0b2-16b1-3eb3-aab2-692d7a2ec60e",
+      "bytes": 1103,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "66"
+      }
+    },
+    {
+      "time": "2020-02-03 09:19:38",
+      "bill_id": "2073d13a-16f1-3802-8175-21075d3bccd3",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022736",
+      "session_id": "eff9c0b2-16b1-3eb3-aab2-692d7a2ec60e",
+      "bytes": 1375,
+      "country_code": "dk",
+      "network_type": "3G",
+      "network": {
+        "mcc": "238",
+        "mnc": "66"
+      }
+    },
+    {
+      "time": "2020-02-03 09:19:52",
+      "bill_id": "f692d536-435f-3031-83ff-e5f1a83dd412",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022737",
+      "session_id": "2bf452fd-288c-382a-a391-88e3ce75175b",
+      "bytes": 17431,
+      "country_code": "dk",
+      "network_type": "4G",
+      "network": {
+        "mcc": "238",
+        "mnc": "06"
+      }
+    },
+    {
+      "time": "2020-02-03 09:29:54",
+      "bill_id": "d59175db-c840-38b7-92c0-f19360c10c9b",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022737",
+      "session_id": "2bf452fd-288c-382a-a391-88e3ce75175b",
+      "bytes": 14605,
+      "country_code": "dk",
+      "network_type": "4G",
+      "network": {
+        "mcc": "238",
+        "mnc": "06"
+      }
+    },
+    {
+      "time": "2020-02-03 09:44:56",
+      "bill_id": "31b4eb40-77be-341e-bc60-d6df353ec066",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022738",
+      "session_id": "2bf452fd-288c-382a-a391-88e3ce75175b",
+      "bytes": 110060,
+      "country_code": "dk",
+      "network_type": "4G",
+      "network": {
+        "mcc": "238",
+        "mnc": "06"
+      }
+    },
+    {
+      "time": "2020-02-03 09:59:55",
+      "bill_id": "1737eae9-9627-3baf-bd42-0811a3a60efb",
+      "sim_id": "000002273",
+      "iccid": "89457387300000022738",
+      "session_id": "2bf452fd-288c-382a-a391-88e3ce75175b",
+      "bytes": 16082,
+      "country_code": "dk",
+      "network_type": "4G",
+      "network": {
+        "mcc": "238",
+        "mnc": "06"
+      }
+    }
+  ]
+}
