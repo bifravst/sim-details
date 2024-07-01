@@ -22,7 +22,7 @@
     "@aws-sdk/client-iam": "3.606.0",
     "@aws-sdk/client-sqs": "3.606.0",
     "@aws-sdk/util-dynamodb": "3.606.0",
-    "@bifravst/aws-cdk-lambda-helpers": "1.7.35",
+    "@bifravst/aws-cdk-lambda-helpers": "1.8.23",
     "@bifravst/ci": "2.0.1",
     "@bifravst/eslint-config-typescript": "6.1.6",
     "@bifravst/prettier-config": "1.0.3",
