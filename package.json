@@ -19,9 +19,9 @@
   "author": "Nordic Semiconductor ASA | nordicsemi.no",
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "@aws-sdk/client-iam": "3.583.0",
-    "@aws-sdk/client-sqs": "3.600.0",
-    "@aws-sdk/util-dynamodb": "3.600.0",
+    "@aws-sdk/client-iam": "3.606.0",
+    "@aws-sdk/client-sqs": "3.606.0",
+    "@aws-sdk/util-dynamodb": "3.606.0",
     "@bifravst/aws-cdk-lambda-helpers": "1.7.35",
     "@bifravst/ci": "2.0.1",
     "@bifravst/eslint-config-typescript": "6.1.6",
@@ -70,7 +70,7 @@
   },
   "prettier": "@bifravst/prettier-config",
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "3.600.0",
+    "@aws-sdk/client-dynamodb": "3.606.0",
     "@hello.nrfcloud.com/proto": "14.1.2",
     "@nordicsemiconductor/from-env": "3.0.1",
     "@sinclair/typebox": "0.32.34"
