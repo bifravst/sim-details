@@ -106,5 +106,5 @@ Then, for continuous deployment:
 ```bash
 gh variable set API_DOMAIN_NAME --env production --body api.sim-details.nordicsemi.cloud
 gh variable set API_DOMAIN_ROUTE_53_REGION --env production --body eu-north-1
-gh variable set API_DOMAIN_ROUTE_53_ROLE_ARN --env production --body arn:aws:iam::<account ID>:role/<role name>
+gh secret set API_DOMAIN_ROUTE_53_ROLE_ARN --env production --body `arn:aws:iam::<account ID>:role/<role name>`
 ```
