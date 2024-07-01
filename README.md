@@ -48,13 +48,13 @@ After deploying the stack manually once,
 - create the variable `STACK_NAME` with the value `<stack name>` (your stack
   name)
 
+to enable continuous deployment.
+
 ```bash
 gh secret set AWS_ROLE --env production --body `arn:aws:iam::<account ID>:role/<stack name>-cd`
 gh variable set AWS_REGION --env production --body <region>
 gh variable set STACK_NAME --env production --body <stack name>
 ```
-
-to enable continuous deployment.
 
 ### Custom API domain
 
