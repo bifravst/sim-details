@@ -28,6 +28,43 @@ void describe('e2e-tests', () => {
 			sixMinAgo,
 		})
 	})
+	void it('should return a problem details message that describes the reason for the 400 error when not existing iccid', async () => {
+		const req = await fetchData('notValidIccid')
+		const expectedBody = {
+			type: 'https://github.com/bifravst/sim-details',
+			title: "Your request parameters didn't validate.",
+			'invalid-params': [
+				{
+					name: 'iccid',
+					reason:
+						'Not a valid iccid. Must include MII, country code, issuer identifier, individual account identification number and parity check digit. See https://www.itu.int/rec/dologin_pub.asp?lang=e&id=T-REC-E.118-200605-I!!PDF-E&type=items for more information.',
+				},
+			],
+		}
+		const responseBody = await req.json()
+		assert.equal(req.status, 400)
+		assert.equal(req.headers.get('Content-Type'), 'application/problem+json')
+		assert.equal(req.headers.get('Access-Control-Allow-Origin'), '*')
+		assert.deepEqual(responseBody, expectedBody)
+	})
+	void it('should return a problem details message that describes the reason for the 400 error when not valid iccid', async () => {
+		const req = await fetchData('89450421180216254864') //Telia Sonera A/S"
+		const expectedBody = {
+			type: 'https://github.com/bifravst/sim-details',
+			title: "Your request parameters didn't validate.",
+			'invalid-params': [
+				{
+					name: 'iccid',
+					reason: 'Not a valid issuer identifier. Must be Onomondo ApS.',
+				},
+			],
+		}
+		const responseBody = await req.json()
+		assert.equal(req.status, 400)
+		assert.equal(req.headers.get('Content-Type'), 'application/problem+json')
+		assert.equal(req.headers.get('Access-Control-Allow-Origin'), '*')
+		assert.deepEqual(responseBody, expectedBody)
+	})
 	void it('should return statusCode 409 and cache max-age=60 when the SIM information is not in DB', async () => {
 		const req = await fetchData(getRandomICCID())
 		const expectedCacheControl = 'public, max-age=60'

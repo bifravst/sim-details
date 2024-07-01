@@ -14,6 +14,7 @@ import { fromEnv } from '@nordicsemiconductor/from-env'
 import { res } from '../api/res.js'
 import { olderThan5min } from './olderThan5min.js'
 import { ErrorType, toStatusCode } from '../api/ErrorInfo.js'
+import { identifyIssuer } from 'e118-iin-list'
 
 const { simDetailsJobsQueue, cacheTableName } = fromEnv({
 	simDetailsJobsQueue: 'SIM_DETAILS_JOBS_QUEUE',
@@ -21,6 +22,8 @@ const { simDetailsJobsQueue, cacheTableName } = fromEnv({
 })(process.env)
 
 export const db = new DynamoDBClient({})
+const onomondoIssuerIdentifierNumber = '73'
+const validIssuers = [onomondoIssuerIdentifierNumber]
 
 export const q = queueJob({
 	QueueUrl: simDetailsJobsQueue,
@@ -33,12 +36,41 @@ export const handler = async (
 	event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
 	console.log(JSON.stringify(event))
-	//Get data from DynamoDB
 	const iccid = event.pathParameters?.iccid ?? ''
-	const onomondoRegex = /89(\d{0,2})73/
-	const isOnomondoIccid = onomondoRegex.test(iccid)
-	if (isOnomondoIccid === false) {
-		return res(toStatusCode[ErrorType.EntityNotFound], { expires: 60 })()
+	//Check if iccid is existing
+	const issuer = identifyIssuer(iccid)
+	if (issuer === undefined) {
+		return res(toStatusCode[ErrorType.BadRequest], {
+			expires: 60,
+			contentType: 'application/problem+json',
+		})({
+			type: 'https://github.com/bifravst/sim-details',
+			title: "Your request parameters didn't validate.",
+			'invalid-params': [
+				{
+					name: 'iccid',
+					reason:
+						'Not a valid iccid. Must include MII, country code, issuer identifier, individual account identification number and parity check digit. See https://www.itu.int/rec/dologin_pub.asp?lang=e&id=T-REC-E.118-200605-I!!PDF-E&type=items for more information.',
+				},
+			],
+		})
+	}
+	//Check if iccid from a valid issuer
+	const isValidIccid = validIssuers.includes(issuer.issuerIdentifierNumber)
+	if (isValidIccid === false) {
+		return res(toStatusCode[ErrorType.BadRequest], {
+			expires: 60,
+			contentType: 'application/problem+json',
+		})({
+			type: 'https://github.com/bifravst/sim-details',
+			title: "Your request parameters didn't validate.",
+			'invalid-params': [
+				{
+					name: 'iccid',
+					reason: 'Not a valid issuer identifier. Must be Onomondo ApS.',
+				},
+			],
+		})
 	}
 	const maybeSimDetails = await getSimDetailsFromCacheFunc(iccid)
 	if ('error' in maybeSimDetails) {
