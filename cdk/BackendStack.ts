@@ -19,6 +19,10 @@ import {
 	LambdaSource,
 	PackedLambdaFn,
 } from '@bifravst/aws-cdk-lambda-helpers/cdk'
+import {
+	APICustomDomain,
+	type CustomDomain,
+} from './resources/APICustomDomain.js'
 
 export class BackendStack extends Stack {
 	constructor(
@@ -26,16 +30,20 @@ export class BackendStack extends Stack {
 		{
 			lambdaSources,
 			layer,
+			cdkLayer,
 			repository,
 			gitHubOICDProviderArn,
+			apiDomain,
 		}: {
 			lambdaSources: BackendLambdas
 			layer: PackedLayer
+			cdkLayer: PackedLayer
 			repository: {
 				owner: string
 				repo: string
 			}
 			gitHubOICDProviderArn: string
+			apiDomain?: CustomDomain
 		},
 	) {
 		super(parent, STACK_NAME)
@@ -165,6 +173,35 @@ export class BackendStack extends Stack {
 		const iccid = iccidVar.addResource('{iccid}')
 		iccid.addMethod('GET')
 
+		if (apiDomain === undefined) {
+			new CfnOutput(this, 'APIURL', {
+				exportName: `${this.stackName}:APIURL`,
+				description: 'API endpoint',
+				value: api.url,
+			})
+		} else {
+			const cdkLayerVersion = new Lambda.LayerVersion(this, 'cdkLayer', {
+				code: new LambdaSource(this, {
+					id: 'cdkLayer',
+					zipFile: cdkLayer.layerZipFile,
+					hash: cdkLayer.hash,
+				}).code,
+				compatibleArchitectures: [Lambda.Architecture.ARM_64],
+				compatibleRuntimes: [Lambda.Runtime.NODEJS_20_X],
+			})
+			const domain = new APICustomDomain(this, {
+				api,
+				apiDomain,
+				lambdaSources,
+				cdkLayerVersion,
+			})
+			new CfnOutput(this, 'APIURL', {
+				exportName: `${this.stackName}:APIURL`,
+				description: 'API endpoint',
+				value: domain.URL,
+			})
+		}
+
 		storeSimInformationOnomondo.fn.addPermission('invokeBySQS', {
 			principal: new IAM.ServicePrincipal('sqs.amazonaws.com'),
 			sourceArn: resolutionJobsQueue.queueArn,
@@ -178,14 +215,10 @@ export class BackendStack extends Stack {
 
 		resolutionJobsQueue.grantConsumeMessages(storeSimInformationOnomondo.fn)
 		resolutionJobsQueue.grantConsumeMessages(getAllSimUsageOnomondo.fn)
-		new CfnOutput(this, 'simDetailsApiURL', {
-			exportName: `${this.stackName}:simDetailsApiURL`,
-			value: api.url,
-		})
 	}
 }
 
 export type StackOutputs = {
-	simDetailsApiURL: string
+	APIURL: string
 	cacheTableName: string
 }
