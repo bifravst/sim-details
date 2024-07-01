@@ -71,7 +71,7 @@
   "prettier": "@bifravst/prettier-config",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "3.606.0",
-    "@hello.nrfcloud.com/proto": "14.1.2",
+    "@hello.nrfcloud.com/proto": "14.1.3",
     "@nordicsemiconductor/from-env": "3.0.1",
     "@sinclair/typebox": "0.32.34"
   }
