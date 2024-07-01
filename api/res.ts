@@ -2,7 +2,7 @@ import type { APIGatewayProxyResultV2 } from 'aws-lambda'
 
 export const res =
 	(statusCode: number, options?: { expires: number }) =>
-	(body: unknown): APIGatewayProxyResultV2 => ({
+	(body?: unknown): APIGatewayProxyResultV2 => ({
 		statusCode,
 		headers: {
 			'Access-Control-Allow-Origin': '*',

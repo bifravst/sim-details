@@ -38,22 +38,22 @@ export const handler = async (
 	const onomondoRegex = /89(\d{0,2})73/
 	const isOnomondoIccid = onomondoRegex.test(iccid)
 	if (isOnomondoIccid === false) {
-		return res(toStatusCode[ErrorType.EntityNotFound], { expires: 60 })({})
+		return res(toStatusCode[ErrorType.EntityNotFound], { expires: 60 })()
 	}
 	const maybeSimDetails = await getSimDetailsFromCacheFunc(iccid)
 	if ('error' in maybeSimDetails) {
 		//No information about SIM in Cache
 		if (maybeSimDetails.error instanceof SIMNotFoundError) {
 			await q({ payload: iccid, deduplicationId: iccid })
-			return res(toStatusCode[ErrorType.Conflict], { expires: 60 })({})
+			return res(toStatusCode[ErrorType.Conflict], { expires: 60 })()
 		}
 		//SIM not existing
 		else if (maybeSimDetails.error instanceof SIMNotExistingError) {
-			return res(toStatusCode[ErrorType.EntityNotFound], { expires: 60 })({})
+			return res(toStatusCode[ErrorType.EntityNotFound], { expires: 60 })()
 		}
 		console.error('Internal Error: ', maybeSimDetails.error)
 		//Internal Error
-		return res(toStatusCode[ErrorType.InternalError], { expires: 60 })({})
+		return res(toStatusCode[ErrorType.InternalError], { expires: 60 })()
 	}
 	//Case 2: old data in DynamoDB (> 5min)
 	const timeStampFromDB = maybeSimDetails.success.timestamp
