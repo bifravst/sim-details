@@ -166,12 +166,14 @@ export class BackendStack extends Stack {
 		const api = new apigw.LambdaRestApi(this, 'simDetailsAPI', {
 			handler: getBasicSIMInformation.fn,
 			proxy: false,
+			deployOptions: {
+				// Version APIs by date
+				stageName: '2024-07-01',
+			},
 		})
-		const iccidVar = api.root.addResource('iccid')
-		iccidVar.addMethod('GET')
-
-		const iccid = iccidVar.addResource('{iccid}')
-		iccid.addMethod('GET')
+		const simResource = api.root.addResource('sim')
+		const simByICCIDResource = simResource.addResource('{iccid}')
+		simByICCIDResource.addMethod('GET')
 
 		if (apiDomain === undefined) {
 			new CfnOutput(this, 'APIURL', {
