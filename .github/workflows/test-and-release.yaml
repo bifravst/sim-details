@@ -121,4 +121,6 @@ jobs:
       - name: Trigger deployment workflow
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh workflow run deploy.yaml
+        run: |
+          gh workflow run deploy.yaml \
+            -F ref=${{ github.sha }}

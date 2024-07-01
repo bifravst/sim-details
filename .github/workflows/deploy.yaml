@@ -2,6 +2,10 @@ name: Deployment
 
 on:
   workflow_dispatch:
+    inputs:
+      ref:
+        description: "Version to deploy"
+        required: true
 
 permissions:
   id-token: write
@@ -21,6 +25,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref }}
+
+      - name: Determine released version
+        id: version
+        run: |
+          git fetch --tags
+          VERSION=`git describe --abbrev=0 --tags --always | tr -d '\n'`
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - uses: actions/setup-node@v4
         with:
