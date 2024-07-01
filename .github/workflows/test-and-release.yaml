@@ -114,6 +114,9 @@ jobs:
           aws-region: ${{ vars.AWS_REGION_CI }}
 
       - name: Trigger deployment workflow
+        if: steps.semantic-release.outcome == 'success'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh workflow run deploy.yaml
+        run: |
+          gh workflow run deploy.yaml \
+            -F ref=${{ github.sha }}
