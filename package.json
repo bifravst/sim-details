@@ -51,6 +51,23 @@
     "node": ">=20",
     "npm": ">=10"
   },
+  "release": {
+    "branches": [
+      "saga"
+    ],
+    "remoteTags": true,
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/github",
+        {
+          "successComment": false,
+          "failTitle": false
+        }
+      ]
+    ]
+  },
   "prettier": "@bifravst/prettier-config",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "3.600.0",
