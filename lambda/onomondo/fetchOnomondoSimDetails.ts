@@ -29,7 +29,10 @@ export const fetchOnomondoSIMDetails = async ({
 
 export const SimInfo = Type.Object({
 	data_limit: Type.Object({
-		used: Type.Number({ minimum: 0, examples: [0, 100, 1000] }),
+		used: Type.Union([
+			Type.Number({ minimum: 0, examples: [0, 100, 1000] }),
+			Type.Null(),
+		]),
 		total: Type.Number({ examples: [4000, 40000, 400000] }),
 	}),
 })
