@@ -1,7 +1,7 @@
 {
-  "name": "sim-details",
-  "version": "1.0.0",
-  "description": "",
+  "name": "@bifravst/sim-details",
+  "version": "0.0.0-development",
+  "description": "Provides usage information about SIM cards that have been shipped with Nordic Semiconductor development kits.",
   "type": "module",
   "scripts": {
     "test": "find ./ -type f -name \\*.spec.ts -not -path './e2e-tests/*' -not -path './node_modules/*' -not -path './dist/*' | xargs npx tsx --test --test-reporter spec",
