@@ -2,14 +2,10 @@ name: Deployment
 
 on:
   workflow_dispatch:
-    inputs:
-      ref:
-        description: "Version to deploy"
-        required: true
 
 permissions:
   id-token: write
-  packages: write
+  contents: write
 
 env:
   STACK_NAME: ${{ vars.STACK_NAME }}
@@ -18,34 +14,13 @@ env:
   JSII_SILENCE_WARNING_UNTESTED_NODE_VERSION: 1
 
 jobs:
-  print-inputs:
-    name: Print inputs
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Print inputs
-        run: |
-          echo ref=${{ github.event.inputs.ref }}
-
   deploy:
     runs-on: ubuntu-22.04
 
     environment: production
 
-    env:
-      FORCE_COLOR: 3
-      JSII_SILENCE_WARNING_UNTESTED_NODE_VERSION: 1
-
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.ref }}
-
-      - name: Determine released version
-        id: version
-        run: |
-          git fetch --tags
-          VERSION=`git describe --abbrev=0 --tags --always | tr -d '\n'`
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - uses: actions/setup-node@v4
         with:
@@ -64,4 +39,4 @@ jobs:
       - run: npx cdk diff
 
       - name: Deploy solution stack
-        run: npx cdk deploy --all --require-approval never
+        run: npx cdk deploy --require-approval never
