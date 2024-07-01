@@ -13,6 +13,26 @@ Semiconductor development kits.
 Developed using [AWS CDK](https://aws.amazon.com/cdk) in
 [TypeScript](https://www.typescriptlang.org/).
 
+## Usage
+
+### Basic usage
+
+```bash
+http https://api.sim-details.nordicsemi.cloud/sim/<your SIM's ICCID>
+```
+
+Returns
+
+```json
+{
+  "simDetails": {
+    "totalBytes": 10000000,
+    "usedBytes": 0
+  },
+  "timestamp": "2024-07-01T12:11:43.066Z"
+}
+```
+
 ## Installation in your AWS account
 
 ### Setup
