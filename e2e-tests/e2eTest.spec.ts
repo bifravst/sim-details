@@ -67,6 +67,6 @@ void describe('e2e-tests', () => {
 })
 
 const fetchData = async (iccid: string): Promise<Response> => {
-	const url = `${outputs.simDetailsApiURL}/iccid/${iccid}`
+	const url = `${outputs.APIURL}/iccid/${iccid}`
 	return await fetch(url)
 }
