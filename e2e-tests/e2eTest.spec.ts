@@ -32,6 +32,7 @@ void describe('e2e-tests', () => {
 		const req = await fetchData(getRandomICCID())
 		const expectedCacheControl = 'public, max-age=60'
 		assert.equal(req.headers.get('cache-control'), expectedCacheControl)
+		assert.equal(req.headers.get('Access-Control-Allow-Origin'), '*')
 		assert.equal(req.status, 409)
 		assert.equal(req.headers.get('content-length'), '0')
 		assert.equal(await req.text(), '')
@@ -41,6 +42,7 @@ void describe('e2e-tests', () => {
 		const text = await req.text()
 		const expectedCacheControl = 'public, max-age=60'
 		assert.equal(req.headers.get('cache-control'), expectedCacheControl)
+		assert.equal(req.headers.get('Access-Control-Allow-Origin'), '*')
 		assert.equal(req.status, 404)
 		assert.equal(req.headers.get('content-length'), '0')
 		assert.equal(text, '')
@@ -54,6 +56,7 @@ void describe('e2e-tests', () => {
 		}
 		const responseBody = await req.json()
 		assert.equal(req.headers.get('cache-control'), expectedCacheControl)
+		assert.equal(req.headers.get('Access-Control-Allow-Origin'), '*')
 		assert.equal(req.status, 200)
 		assert.deepEqual(responseBody, expectedBody)
 	})
@@ -66,6 +69,7 @@ void describe('e2e-tests', () => {
 		}
 		const responseBody = await req.json()
 		assert.equal(req.headers.get('cache-control'), expectedCacheControl)
+		assert.equal(req.headers.get('Access-Control-Allow-Origin'), '*')
 		assert.equal(req.status, 200)
 		assert.deepEqual(responseBody, expectedBody)
 	})
