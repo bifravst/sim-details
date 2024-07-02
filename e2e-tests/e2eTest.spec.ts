@@ -30,15 +30,21 @@ void describe('e2e-tests', () => {
 	})
 	void it('should return statusCode 409 and cache max-age=60 when the SIM information is not in DB', async () => {
 		const req = await fetchData(getRandomICCID())
+		const text = await req.text()
 		const expectedCacheControl = 'public, max-age=60'
 		assert.equal(req.headers.get('cache-control'), expectedCacheControl)
 		assert.equal(req.status, 409)
+		assert.equal(req.headers.get('content-length'), '0')
+		assert.equal(text, '')
 	})
 	void it('should return statusCode 404 and cache max-age=60 when the SIM is not existing', async () => {
 		const req = await fetchData(iccidNotExisting)
+		const text = await req.text()
 		const expectedCacheControl = 'public, max-age=60'
 		assert.equal(req.headers.get('cache-control'), expectedCacheControl)
 		assert.equal(req.status, 404)
+		assert.equal(req.headers.get('content-length'), '0')
+		assert.equal(text, '')
 	})
 	void it('should return statusCode 200, cache max-age=300 and correct body if the data is in cache', async () => {
 		const req = await fetchData(iccidNew)
