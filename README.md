@@ -33,6 +33,110 @@ Returns
 }
 ```
 
+Using
+
+```bash
+http https://api.sim-details.nordicsemi.cloud/2024-07-01/sim/<your SIM's ICCID>/history?timespan=<timespan>
+```
+
+with one of the following timespans:
+
+```
+lastHour | lastDay | lastWeek  | lastMonth
+```
+
+Returns
+
+```json
+[
+  { "ts": "2024-07-01T12:00:00.000Z", "usedBytes": 50 },
+  { "ts": "2024-07-01T12:05:00.000Z", "usedBytes": 100 },
+  { "ts": "2024-07-01T12:10:00.000Z", "usedBytes": 0 },
+  { "ts": "2024-07-01T12:15:00.000Z", "usedBytes": 45 },
+  { "ts": "2024-07-01T12:20:00.000Z", "usedBytes": 344221 },
+  { "ts": "2024-07-01T12:25:00.000Z", "usedBytes": 854 },
+  { "ts": "2024-07-01T12:30:00.000Z", "usedBytes": 0 },
+  { "ts": "2024-07-01T12:35:00.000Z", "usedBytes": 30 },
+  { "ts": "2024-07-01T12:40:00.000Z", "usedBytes": 25 },
+  { "ts": "2024-07-01T12:45:00.000Z", "usedBytes": 0 },
+  { "ts": "2024-07-01T12:50:00.000Z", "usedBytes": 400 },
+  { "ts": "2024-07-01T12:55:00.000Z", "usedBytes": 50 }
+]
+```
+
+for the last hour.
+
+### Caching of data
+
+Every hour we cache usage information about **active** SIMs. For Onomondo a SIM
+is treated as **active** if it has been used that day. For Wireless Logic a SIM
+is treated as **active** if it is in the database, meaning it has been
+requested/updated within the last 30 days.
+
+If you send a request for a SIM that is cached you will first get the cached
+usage, and if the data is more than 5 minutes old we will fetch updated data in
+the background. By sending the same request again you will get the updated data
+once it is fetched from the issuers API.
+
+If you have never used the SIM before there is no cached data. During the first
+request you will get a 409 status code and no data. In the background we will
+try to fetch the updated data usage from the issuers API. By sending the same
+request again you will get the updated data once it is fetched from the issuers
+API. If the SIM is not existing you will get a 404 status code in the second
+request. If the SIM is not existing this will be cached for 30 days, and we will
+not try to fetch new data from the issuer during this period.
+
+If you send a request with a non valid ICCID you will get a 400 status code with
+an explanation of why it didn't validate in the response body. This is either
+because the input is not a valid ICCID or because the ICCID is from an issuer
+that we don't support.
+
+### Data history
+
+For WL (Wireless Logic) we have a lambda
+[getAllSimUsageWirelessLogic.ts](./getAllSimUsageWirelessLogic.ts) that runs
+every 5 minutes for updating the DynamoDB value for the usage per active SIM.
+For WL an active SIM means that it is in DynamoDB.
+
+[getAllSimUsageWirelessLogic.ts](./getAllSimUsageWirelessLogic.ts) will fetch
+the data usage from WL API every 5 minutes. This usage is then compared to the
+previous value in DynamoDB (from our last fetch), and the difference between
+those values is written to Timestream.
+
+Another lambda where we fetch from WL API is
+[storeSimInformationWirelessLogic.ts](./storeSimInformationWirelessLogic.ts).
+This lambda is doing the same as getAllSimUsageWirelessLogic, and the only
+difference is that it fetches data for one specific SIM that is received from a
+queue. By also writing to Timestream in this function we cover every usage
+update from WL and we can use the same logic as earlier where the data would be
+updated every 5 minutes.
+
+For Onomondo we have a lambda
+[getAllSimUsageOnomondo.ts](./getAllSimUsageOnomondo.ts) which runs every hour
+for updating the DynamoDB value and Timestream history. The function will
+request all usage within the current day, and store the usage chunks in
+Timestream. This way we have all the history in Timestream. This function also
+updates the total usage which is stored in DynamoDB.
+
+Another lambda for fetching data from Onomondo is
+[storeSimInformationOnomondo.ts](./storeSimInformationOnomondo.ts). This lambda
+is also fetching data from Onomondo API, but this happens when a user requests
+the history through our API. History from that specific SIM is then requested
+from Onomondo API, and then stored in Timestream. The usage in DynamoDB is also
+updated.
+
+### API Response
+
+The API will return different status codes based on different scenarios:
+
+| Status Code | Explanation                                                                                                                                   | Cache max-age |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| 200         | OK. The request was successful and you should get the most recent data from cache. If data is older than 5 minutes, new data will be fetched. | 300           |
+| 400         | Bad Request. The request parameters didn't validate. Either the input is not a valid ICCID or from an issuer that we don't support.           | 60            |
+| 404         | Not Found. The SIM doesn't exist in the issuers API. This response will be cached for 30 days.                                                | 2592000       |
+| 409         | Conflict. No information about SIM in cache. New data will be fetched from the issuers API.                                                   | 60            |
+| 500         | Internal Error.                                                                                                                               | 0             |
+
 ## Installation in your AWS account
 
 ### Setup
@@ -51,6 +155,8 @@ Configure API credentials:
 
 ```bash
 aws ssm put-parameter --name /sim-details/onomondoKey --type String --value <Your Onomondo API Key>
+aws ssm put-parameter --name /sim-details/wirelessLogicKey --type String --value <Your Wireless Logic API Key>
+aws ssm put-parameter --name /sim-details/wirelessLogicClientId --type String --value <Your Wireless Logic CLIENT ID>
 ```
 
 ### Deploy
