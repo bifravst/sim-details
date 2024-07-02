@@ -32,12 +32,14 @@ void describe('e2e-tests', () => {
 		const req = await fetchData(getRandomICCID())
 		const expectedCacheControl = 'public, max-age=60'
 		assert.equal(req.headers.get('cache-control'), expectedCacheControl)
+		assert.equal(req.headers.get('Access-Control-Allow-Origin'), '*')
 		assert.equal(req.status, 409)
 	})
 	void it('should return statusCode 404 and cache max-age=60 when the SIM is not existing', async () => {
 		const req = await fetchData(iccidNotExisting)
 		const expectedCacheControl = 'public, max-age=60'
 		assert.equal(req.headers.get('cache-control'), expectedCacheControl)
+		assert.equal(req.headers.get('Access-Control-Allow-Origin'), '*')
 		assert.equal(req.status, 404)
 	})
 	void it('should return statusCode 200, cache max-age=300 and correct body if the data is in cache', async () => {
@@ -49,6 +51,7 @@ void describe('e2e-tests', () => {
 		}
 		const responseBody = await req.json()
 		assert.equal(req.headers.get('cache-control'), expectedCacheControl)
+		assert.equal(req.headers.get('Access-Control-Allow-Origin'), '*')
 		assert.equal(req.status, 200)
 		assert.deepEqual(responseBody, expectedBody)
 	})
@@ -61,6 +64,7 @@ void describe('e2e-tests', () => {
 		}
 		const responseBody = await req.json()
 		assert.equal(req.headers.get('cache-control'), expectedCacheControl)
+		assert.equal(req.headers.get('Access-Control-Allow-Origin'), '*')
 		assert.equal(req.status, 200)
 		assert.deepEqual(responseBody, expectedBody)
 	})
