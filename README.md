@@ -49,7 +49,11 @@ npm ci
 
 ### Run once
 
-FIXME: Document how to configure API credentials
+Configure API credentials:
+
+```bash
+aws ssm put-parameter --name /sim-details/onomondoKey --type String --value <Your Onomondo API Key>
+```
 
 ### Deploy
 
