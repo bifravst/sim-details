@@ -68,12 +68,10 @@ void describe('getSimDetailsFromCache()', () => {
 			send: dynamoDbSend,
 		} as any
 		const expectedRes = {
-			success: {
+			sim: {
 				timestamp: new Date('2024-06-24T08:53:52.398Z'),
-				simDetails: {
-					totalBytes: 2000,
-					usedBytes: 123,
-				},
+				totalBytes: 2000,
+				usedBytes: 123,
 			},
 		}
 		const simDetails = await getSimDetailsFromCache(db, cacheTableName)(iccid)

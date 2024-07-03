@@ -89,7 +89,8 @@ void describe('e2e-tests', () => {
 		const expectedCacheControl = 'public, max-age=300'
 		const expectedBody = {
 			timestamp: now.toISOString(),
-			simDetails: { usedBytes: 0, totalBytes: 1000 },
+			usedBytes: 0,
+			totalBytes: 1000,
 		}
 		const responseBody = await req.json()
 		assert.equal(req.headers.get('cache-control'), expectedCacheControl)
@@ -102,7 +103,8 @@ void describe('e2e-tests', () => {
 		const expectedCacheControl = 'public, max-age=300'
 		const expectedBody = {
 			timestamp: sixMinAgo.toISOString(),
-			simDetails: { usedBytes: 50, totalBytes: 1000 },
+			usedBytes: 50,
+			totalBytes: 1000,
 		}
 		const responseBody = await req.json()
 		assert.equal(req.headers.get('cache-control'), expectedCacheControl)

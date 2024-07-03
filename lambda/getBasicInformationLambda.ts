@@ -88,20 +88,14 @@ export const handler = async (
 		return res(toStatusCode[ErrorType.InternalError], { expires: 60 })()
 	}
 	//Case 2: old data in DynamoDB (> 5min)
-	const timeStampFromDB = maybeSimDetails.success.timestamp
+	const timeStampFromDB = maybeSimDetails.sim.timestamp
 	const isOld = olderThan5min(timeStampFromDB)
 	if (isOld == true) {
 		await q({ payload: iccid, deduplicationId: iccid })
-		return res(200, { expires: 300 })({
-			timestamp: timeStampFromDB,
-			simDetails: maybeSimDetails.success.simDetails,
-		})
+		return res(200, { expires: 300 })(maybeSimDetails.sim)
 	}
 	//Case 3: recent data in DynamoDB
 	return res(200, {
 		expires: 300,
-	})({
-		timestamp: timeStampFromDB,
-		simDetails: maybeSimDetails.success.simDetails,
-	})
+	})(maybeSimDetails.sim)
 }
