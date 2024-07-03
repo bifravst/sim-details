@@ -12,7 +12,7 @@ export const getSimDetailsFromCache =
 		iccid: string,
 	): Promise<
 		| {
-				error: Error | SIMNotFoundError | SIMNotExistingError
+				error: SIMNotFoundError | SIMNotExistingError
 		  }
 		| {
 				sim: SimDetails & {

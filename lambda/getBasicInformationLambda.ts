@@ -4,7 +4,6 @@ import type {
 	APIGatewayProxyResultV2,
 } from 'aws-lambda'
 import {
-	SIMNotExistingError,
 	SIMNotFoundError,
 	getSimDetailsFromCache,
 } from './getSimDetailsFromCache.js'
@@ -80,12 +79,7 @@ export const handler = async (
 			return res(toStatusCode[ErrorType.Conflict], { expires: 60 })()
 		}
 		//SIM not existing
-		else if (maybeSimDetails.error instanceof SIMNotExistingError) {
-			return res(toStatusCode[ErrorType.EntityNotFound], { expires: 60 })()
-		}
-		console.error('Internal Error: ', maybeSimDetails.error)
-		//Internal Error
-		return res(toStatusCode[ErrorType.InternalError], { expires: 60 })()
+		return res(toStatusCode[ErrorType.EntityNotFound], { expires: 60 })()
 	}
 	//Case 2: old data in DynamoDB (> 5min)
 	const timeStampFromDB = maybeSimDetails.sim.timestamp
