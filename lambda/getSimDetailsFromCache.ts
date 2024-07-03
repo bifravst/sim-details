@@ -1,7 +1,5 @@
-import { type DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb'
+import { QueryCommand, type DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { unmarshall } from '@aws-sdk/util-dynamodb'
-import { validateWithTypeBox } from '@hello.nrfcloud.com/proto'
-import { Type } from '@sinclair/typebox'
 
 export type SimDetails = {
 	usedBytes: number
@@ -14,11 +12,15 @@ export const getSimDetailsFromCache =
 		iccid: string,
 	): Promise<
 		| {
-				error: Error | SIMNotFoundError | SIMNotExistingError | SIMInternalError
+				error: Error | SIMNotFoundError | SIMNotExistingError
 		  }
-		| { success: { timestamp: Date; simDetails: SimDetails } }
+		| {
+				sim: SimDetails & {
+					timestamp: Date
+				}
+		  }
 	> => {
-		const simDetails = db.send(
+		const simDetails = await db.send(
 			new QueryCommand({
 				TableName: cacheTableName,
 				KeyConditionExpression: 'iccid = :iccid',
@@ -27,47 +29,29 @@ export const getSimDetailsFromCache =
 						S: String(iccid),
 					},
 				},
-				ProjectionExpression: 'usedBytes, totalBytes, SIMExisting,ts',
-				ScanIndexForward: false,
+				ProjectionExpression: 'usedBytes, totalBytes, SIMExisting, ts',
 				Limit: 1,
 			}),
 		)
-		const items = (await simDetails).Items?.[0]
+		const sim = (simDetails.Items ?? []).map((item) => unmarshall(item))[0]
 
 		//No information about SIM in cache
-		if (items === undefined) {
+		if (sim === undefined) {
 			return { error: new SIMNotFoundError(iccid) }
 		}
 
 		//SIM is not existing
-		const SIMexisting = unmarshall(items).SIMExisting as boolean
-		if (!SIMexisting) {
+		if (sim.SIMExisting === false) {
 			return { error: new SIMNotExistingError(iccid) }
 		}
-		const responseObject: { timestamp: Date; simDetails: SimDetails } = {
-			timestamp: new Date(unmarshall(items).ts),
-			simDetails: {
-				usedBytes: unmarshall(items).usedBytes,
-				totalBytes: unmarshall(items).totalBytes,
+		return {
+			sim: {
+				timestamp: new Date(sim.ts),
+				usedBytes: sim.usedBytes,
+				totalBytes: sim.totalBytes,
 			},
 		}
-		const maybeValidResponseObject =
-			validateWithTypeBox(respObj)(responseObject)
-		if ('value' in maybeValidResponseObject) {
-			return {
-				success: responseObject,
-			}
-		}
-		return { error: new SIMInternalError(iccid) }
 	}
-
-export const respObj = Type.Object({
-	timestamp: Type.Date(),
-	simDetails: Type.Object({
-		usedBytes: Type.Number({ minimum: 0, examples: [0, 100, 1000] }),
-		totalBytes: Type.Number({ examples: [4000, 40000, 400000] }),
-	}),
-})
 
 export class SIMNotFoundError extends Error {
 	public readonly iccid: string
@@ -84,14 +68,5 @@ export class SIMNotExistingError extends Error {
 		super(`SIM not existing: ${iccid}`)
 		this.iccid = iccid
 		this.name = 'SIMNotExistingError'
-	}
-}
-
-export class SIMInternalError extends Error {
-	public readonly iccid: string
-	constructor(iccid: string) {
-		super(`Internal error when getting SIM: ${iccid}`)
-		this.iccid = iccid
-		this.name = 'SIMInternalError'
 	}
 }

@@ -1,7 +1,6 @@
 import { Type, type Static } from '@sinclair/typebox'
 import { fetchAndValidate } from '../fetchAndValidate.js'
 import type { SimDetails } from '../getSimDetailsFromCache.js'
-import { getUsageData } from './getUsageData.js'
 
 export const fetchOnomondoSIMDetails = async ({
 	iccid,
@@ -18,7 +17,12 @@ export const fetchOnomondoSIMDetails = async ({
 		apiKey,
 	})
 	if ('value' in res) {
-		return { value: getUsageData(res.value) }
+		return {
+			value: {
+				usedBytes: res.value.data_limit.used ?? 0,
+				totalBytes: res.value.data_limit.total,
+			},
+		}
 	}
 	return {
 		error: new Error(
