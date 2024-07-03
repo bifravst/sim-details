@@ -1,0 +1,28 @@
+{
+  "sims": [
+    {
+      "iccid": "89444600000000000001",
+      "msisdn": "1234567890",
+      "month_to_date_bytes_up": "0",
+      "month_to_date_bytes_down": "2419200",
+      "month_to_date_voice_up": "0",
+      "month_to_date_voice_down": "0",
+      "month_to_date_sms_up": "0",
+      "month_to_date_sms_down": "0",
+      "last_seen": "2024-07-08 17:18:49",
+      "in_current_session": false
+    },
+    {
+      "iccid": "89444600000000000002",
+      "msisdn": "1234567890",
+      "month_to_date_bytes_up": "0",
+      "month_to_date_bytes_down": "674456",
+      "month_to_date_voice_up": "0",
+      "month_to_date_voice_down": "0",
+      "month_to_date_sms_up": "0",
+      "month_to_date_sms_down": "0",
+      "last_seen": null,
+      "in_current_session": false
+    }
+  ]
+}

@@ -14,20 +14,21 @@ import { res } from '../api/res.js'
 import { olderThan5min } from './olderThan5min.js'
 import { ErrorType, toStatusCode } from '../api/ErrorInfo.js'
 import { identifyIssuer } from 'e118-iin-list'
+import { onomondoIIN, wirelessLogicIIN } from './constants.js'
 
-const { simDetailsJobsQueue, cacheTableName } = fromEnv({
+const { simDetailsJobsQueue, cacheTableName, wirelessLogicQueue } = fromEnv({
 	simDetailsJobsQueue: 'SIM_DETAILS_JOBS_QUEUE',
+	wirelessLogicQueue: 'WIRELESS_LOGIC_QUEUE',
 	cacheTableName: 'CACHE_TABLE_NAME',
 })(process.env)
 
 export const db = new DynamoDBClient({})
-const onomondoIssuerIdentifierNumber = '73'
-const validIssuers = [onomondoIssuerIdentifierNumber]
+const sqs = new SQSClient({})
 
-export const q = queueJob({
-	QueueUrl: simDetailsJobsQueue,
-	sqs: new SQSClient({}),
-})
+const validIssuers: Record<string, string> = {
+	[onomondoIIN]: simDetailsJobsQueue,
+	[wirelessLogicIIN]: wirelessLogicQueue,
+}
 
 const getSimDetailsFromCacheFunc = getSimDetailsFromCache(db, cacheTableName)
 
@@ -55,7 +56,9 @@ export const handler = async (
 		})
 	}
 	//Check if iccid from a valid issuer
-	const isValidIccid = validIssuers.includes(issuer.issuerIdentifierNumber)
+	const isValidIccid = Object.keys(validIssuers).includes(
+		issuer.issuerIdentifierNumber,
+	)
 	if (isValidIccid === false) {
 		return res(toStatusCode[ErrorType.BadRequest], {
 			expires: 60,
@@ -66,7 +69,7 @@ export const handler = async (
 			'invalid-params': [
 				{
 					name: 'iccid',
-					reason: 'Not a valid issuer identifier. Must be Onomondo ApS.',
+					reason: 'Not a valid issuer identifier.',
 				},
 			],
 		})
@@ -75,7 +78,10 @@ export const handler = async (
 	if ('error' in maybeSimDetails) {
 		//No information about SIM in Cache
 		if (maybeSimDetails.error instanceof SIMNotFoundError) {
-			await q({ payload: iccid, deduplicationId: iccid })
+			await queueJob({
+				QueueUrl: validIssuers[issuer.issuerIdentifierNumber] as string,
+				sqs,
+			})({ payload: iccid, deduplicationId: iccid })
 			return res(toStatusCode[ErrorType.Conflict], { expires: 60 })()
 		}
 		//SIM not existing
@@ -85,7 +91,10 @@ export const handler = async (
 	const timeStampFromDB = maybeSimDetails.sim.timestamp
 	const isOld = olderThan5min(timeStampFromDB)
 	if (isOld == true) {
-		await q({ payload: iccid, deduplicationId: iccid })
+		await queueJob({
+			QueueUrl: validIssuers[issuer.issuerIdentifierNumber] as string,
+			sqs,
+		})({ payload: iccid, deduplicationId: iccid })
 		return res(200, { expires: 300 })(maybeSimDetails.sim)
 	}
 	//Case 3: recent data in DynamoDB

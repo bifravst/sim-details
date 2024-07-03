@@ -1,0 +1,39 @@
+{
+  "$metadata": {
+    "httpStatusCode": 200,
+    "requestId": "15G3IILUKC2HR6AORTD893GTBVVV4KQNSO5AEMVJF66Q9ASUAAJG",
+    "attempts": 1,
+    "totalRetryDelay": 0
+  },
+  "Count": 3,
+  "Items": [
+    {
+      "ts": { "S": "2024-07-08T12:27:24.889Z" },
+      "usedBytes": { "N": "50" },
+      "SIMExisting": { "BOOL": true },
+      "timestamp": { "S": "2024-07-08T12:33:25.645Z" },
+      "iccid": { "S": "89444600000000000001" },
+      "ttl": { "N": "1723034005.645" },
+      "totalBytes": { "N": "1000" }
+    },
+    {
+      "ts": { "S": "2024-07-08T12:33:24.889Z" },
+      "usedBytes": { "N": "0" },
+      "SIMExisting": { "BOOL": true },
+      "timestamp": { "S": "2024-07-08T12:33:24.898Z" },
+      "iccid": { "S": "89444600000000000002" },
+      "ttl": { "N": "1723034004.898" },
+      "totalBytes": { "N": "1000" }
+    },
+    {
+      "ts": { "S": "2024-07-08T23:03:35.202Z" },
+      "usedBytes": { "N": "210974" },
+      "SIMExisting": { "BOOL": true },
+      "timestamp": { "S": "2024-07-08T23:03:35.202Z" },
+      "iccid": { "S": "89457300000000000001" },
+      "ttl": { "N": "1723071815.202" },
+      "totalBytes": { "N": "10000000" }
+    }
+  ],
+  "ScannedCount": 3
+}
