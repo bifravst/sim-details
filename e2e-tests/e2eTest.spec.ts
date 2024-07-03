@@ -6,28 +6,70 @@ import { STACK_NAME } from '../cdk/stackConfig.js'
 import { CloudFormationClient } from '@aws-sdk/client-cloudformation'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { getRandomICCID } from './getRandomICCID.js'
+import { putSimDetails } from '../lambda/putSimDetails.js'
 import { seedingDBFunction } from './seedingDBFunction.js'
 
 const CFclient = new CloudFormationClient()
 export const outputs = await stackOutput(CFclient)<StackOutputs>(STACK_NAME)
 export const db = new DynamoDBClient({})
 
-const iccidNew = getRandomICCID()
-const iccidOld = getRandomICCID()
-const iccidNotExisting = getRandomICCID()
+const iccidNew = getRandomICCID(4573)
+const iccidOld = getRandomICCID(4573)
+const iccidNewWL = getRandomICCID(4446)
+const iccidOldWL = getRandomICCID(4446)
+const iccidNotExisting = getRandomICCID(4573)
 const now = new Date()
 const sixMinAgo = new Date(Date.now() - 6 * 60 * 1000)
 
 void describe('e2e-tests', () => {
 	before(async () => {
+		//put notExisting SIM in DB
+		await putSimDetails(db, outputs.cacheTableName)(iccidNotExisting, false)
+		//put iccid from vendors in DB
 		await seedingDBFunction({
 			iccidNew,
 			iccidOld,
-			iccidNotExisting,
+			now,
+			sixMinAgo,
+		})
+		await seedingDBFunction({
+			iccidNew: iccidNewWL,
+			iccidOld: iccidOldWL,
 			now,
 			sixMinAgo,
 		})
 	})
+	const expectedBodyNew = {
+		timestamp: now.toISOString(),
+		usedBytes: 0,
+		totalBytes: 1000,
+	}
+	const expectedBodyOld = {
+		timestamp: sixMinAgo.toISOString(),
+		usedBytes: 50,
+		totalBytes: 1000,
+	}
+	for (const [iccid, response, statusCode, status] of [
+		[iccidNewWL, expectedBodyNew, 200, 'recent Wireless Logic'],
+		[iccidNew, expectedBodyNew, 200, 'recent Onomondo'],
+		[iccidOldWL, expectedBodyOld, 200, 'old Wireless Logic'],
+		[iccidOld, expectedBodyOld, 200, 'old Onomondo'],
+	] as [
+		string,
+		{ timestamp: string; usedBytes: number; totalBytes: number },
+		number,
+		string,
+	][]) {
+		void it(`should return statusCode ${statusCode}, cache max-age=300 and correct body for iccid: ${iccid} with status ${status}`, async () => {
+			const req = await fetchData(iccid)
+			const expectedCacheControl = 'public, max-age=300'
+			const responseBody = await req.json()
+			assert.equal(req.headers.get('cache-control'), expectedCacheControl)
+			assert.equal(req.headers.get('Access-Control-Allow-Origin'), '*')
+			assert.equal(req.status, statusCode)
+			assert.deepEqual(responseBody, response)
+		})
+	}
 	void it('should return a problem details message that describes the reason for the 400 error when not existing iccid', async () => {
 		const req = await fetchData('notValidIccid')
 		const expectedBody = {
@@ -55,7 +97,7 @@ void describe('e2e-tests', () => {
 			'invalid-params': [
 				{
 					name: 'iccid',
-					reason: 'Not a valid issuer identifier. Must be Onomondo ApS.',
+					reason: 'Not a valid issuer identifier.',
 				},
 			],
 		}
@@ -66,7 +108,7 @@ void describe('e2e-tests', () => {
 		assert.deepEqual(responseBody, expectedBody)
 	})
 	void it('should return statusCode 409 and cache max-age=60 when the SIM information is not in DB', async () => {
-		const req = await fetchData(getRandomICCID())
+		const req = await fetchData(getRandomICCID(4573))
 		const expectedCacheControl = 'public, max-age=60'
 		assert.equal(req.headers.get('cache-control'), expectedCacheControl)
 		assert.equal(req.headers.get('Access-Control-Allow-Origin'), '*')
@@ -76,41 +118,12 @@ void describe('e2e-tests', () => {
 	})
 	void it('should return statusCode 404 and cache max-age=60 when the SIM is not existing', async () => {
 		const req = await fetchData(iccidNotExisting)
-		const text = await req.text()
 		const expectedCacheControl = 'public, max-age=60'
 		assert.equal(req.headers.get('cache-control'), expectedCacheControl)
 		assert.equal(req.headers.get('Access-Control-Allow-Origin'), '*')
 		assert.equal(req.status, 404)
 		assert.equal(req.headers.get('content-length'), '0')
-		assert.equal(text, '')
-	})
-	void it('should return statusCode 200, cache max-age=300 and correct body if the data is in cache', async () => {
-		const req = await fetchData(iccidNew)
-		const expectedCacheControl = 'public, max-age=300'
-		const expectedBody = {
-			timestamp: now.toISOString(),
-			usedBytes: 0,
-			totalBytes: 1000,
-		}
-		const responseBody = await req.json()
-		assert.equal(req.headers.get('cache-control'), expectedCacheControl)
-		assert.equal(req.headers.get('Access-Control-Allow-Origin'), '*')
-		assert.equal(req.status, 200)
-		assert.deepEqual(responseBody, expectedBody)
-	})
-	void it('should return statusCode 200, cache max-age=300 and correct body if the data is in cache and not recent.', async () => {
-		const req = await fetchData(iccidOld)
-		const expectedCacheControl = 'public, max-age=300'
-		const expectedBody = {
-			timestamp: sixMinAgo.toISOString(),
-			usedBytes: 50,
-			totalBytes: 1000,
-		}
-		const responseBody = await req.json()
-		assert.equal(req.headers.get('cache-control'), expectedCacheControl)
-		assert.equal(req.headers.get('Access-Control-Allow-Origin'), '*')
-		assert.equal(req.status, 200)
-		assert.deepEqual(responseBody, expectedBody)
+		assert.equal(await req.text(), '')
 	})
 })
 

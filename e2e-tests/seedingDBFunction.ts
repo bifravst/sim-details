@@ -4,13 +4,11 @@ import { db, outputs } from './e2eTest.spec.js'
 export const seedingDBFunction = async ({
 	iccidNew,
 	iccidOld,
-	iccidNotExisting,
 	now,
 	sixMinAgo,
 }: {
 	iccidNew: string
 	iccidOld: string
-	iccidNotExisting: string
 	now: Date
 	sixMinAgo: Date
 }): Promise<void> => {
@@ -47,6 +45,4 @@ export const seedingDBFunction = async ({
 		simDetails2,
 		sixMinAgo,
 	)
-	//put not existing data in DB
-	await putSimDetails(db, outputs.cacheTableName)(iccidNotExisting, false)
 }

@@ -97,6 +97,11 @@ export class BackendStack extends Stack {
 			queueName: `${this.stackName}.fifo`,
 		})
 
+		const wirelessLogicQueue = new SQS.Queue(this, 'wirelessLogicQueue', {
+			fifo: true,
+			queueName: `${this.stackName}-WL.fifo`,
+		})
+
 		const getBasicSIMInformation = new PackedLambdaFn(
 			this,
 			'getBasicSIMInformation',
@@ -108,10 +113,14 @@ export class BackendStack extends Stack {
 				environment: {
 					CACHE_TABLE_NAME: simDetailsCacheTable.tableName,
 					SIM_DETAILS_JOBS_QUEUE: resolutionJobsQueue.queueUrl,
+					WIRELESS_LOGIC_QUEUE: wirelessLogicQueue.queueUrl,
 				},
 				initialPolicy: [
 					new IAM.PolicyStatement({
-						resources: [resolutionJobsQueue.queueArn],
+						resources: [
+							resolutionJobsQueue.queueArn,
+							wirelessLogicQueue.queueArn,
+						],
 						actions: ['sqs:SendMessage'],
 					}),
 				],
@@ -119,6 +128,7 @@ export class BackendStack extends Stack {
 		)
 		simDetailsCacheTable.grantReadData(getBasicSIMInformation.fn)
 		resolutionJobsQueue.grantSendMessages(getBasicSIMInformation.fn)
+		wirelessLogicQueue.grantSendMessages(getBasicSIMInformation.fn)
 
 		const getAllSimUsageOnomondo = new PackedLambdaFn(
 			this,
@@ -134,13 +144,31 @@ export class BackendStack extends Stack {
 		)
 		resolutionJobsQueue.grantSendMessages(getAllSimUsageOnomondo.fn)
 
+		const getAllSimUsageWirelessLogic = new PackedLambdaFn(
+			this,
+			'getAllSimUsageWirelessLogic',
+			lambdaSources.getAllSimUsageWirelessLogic,
+			{
+				layers: [baseLayer],
+				environment: {
+					CACHE_TABLE_NAME: simDetailsCacheTable.tableName,
+				},
+			},
+		)
 		const rule = new Events.Rule(this, 'InvokeActivitiesRule', {
 			schedule: Events.Schedule.expression('rate(1 hour)'),
-			description: `Invoke the lambda that fetches usage for all active SIMs`,
+			description: `Invoke the lambdas that fetches usage for all active SIMs`,
 			enabled: true,
-			targets: [new EventsTargets.LambdaFunction(getAllSimUsageOnomondo.fn)],
+			targets: [
+				new EventsTargets.LambdaFunction(getAllSimUsageOnomondo.fn),
+				new EventsTargets.LambdaFunction(getAllSimUsageWirelessLogic.fn),
+			],
 		})
 		getAllSimUsageOnomondo.fn.addPermission('InvokeByEvents', {
+			principal: new IAM.ServicePrincipal('events.amazonaws.com'),
+			sourceArn: rule.ruleArn,
+		})
+		getAllSimUsageWirelessLogic.fn.addPermission('InvokeByEvents', {
 			principal: new IAM.ServicePrincipal('events.amazonaws.com'),
 			sourceArn: rule.ruleArn,
 		})
@@ -158,6 +186,20 @@ export class BackendStack extends Stack {
 			},
 		)
 		simDetailsCacheTable.grantWriteData(storeSimInformationOnomondo.fn)
+
+		const storeSimInformationWirelessLogic = new PackedLambdaFn(
+			this,
+			'storeSimInformationWirelessLogic',
+			lambdaSources.storeSimInformationWirelessLogic,
+			{
+				layers: [baseLayer],
+				reservedConcurrentExecutions: 10,
+				environment: {
+					CACHE_TABLE_NAME: simDetailsCacheTable.tableName,
+				},
+			},
+		)
+		simDetailsCacheTable.grantWriteData(storeSimInformationWirelessLogic.fn)
 
 		const api = new apigw.LambdaRestApi(this, 'simDetailsAPI', {
 			handler: getBasicSIMInformation.fn,
@@ -205,11 +247,28 @@ export class BackendStack extends Stack {
 			sourceArn: resolutionJobsQueue.queueArn,
 		})
 
+		storeSimInformationWirelessLogic.fn.addPermission('invokeBySQS', {
+			principal: new IAM.ServicePrincipal('sqs.amazonaws.com'),
+			sourceArn: wirelessLogicQueue.queueArn,
+		})
+
 		new Lambda.EventSourceMapping(this, 'invokeLambdaFromNotificationQueue', {
 			eventSourceArn: resolutionJobsQueue.queueArn,
 			target: storeSimInformationOnomondo.fn,
 			batchSize: 10,
 		})
+
+		new Lambda.EventSourceMapping(
+			this,
+			'invokeLambdaFromNotificationWirelessLogicQueue',
+			{
+				eventSourceArn: wirelessLogicQueue.queueArn,
+				target: storeSimInformationWirelessLogic.fn,
+				batchSize: 10,
+			},
+		)
+
+		wirelessLogicQueue.grantConsumeMessages(storeSimInformationWirelessLogic.fn)
 
 		resolutionJobsQueue.grantConsumeMessages(storeSimInformationOnomondo.fn)
 		resolutionJobsQueue.grantConsumeMessages(getAllSimUsageOnomondo.fn)
