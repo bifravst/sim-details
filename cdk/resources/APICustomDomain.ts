@@ -50,7 +50,7 @@ export class APICustomDomain extends Construct {
 			apiId: api.restApiId,
 			domainName: apiDomain.domainName,
 			stage: api.deploymentStage.stageName,
-			apiMappingKey: api.deploymentStage.stageName, // so the api is accessed via the same resource, e.g. https://api.hello.nordicsemi.cloud/2024-04-15/
+			apiMappingKey: api.deploymentStage.stageName, // so the api is accessed via the same resource, e.g. https://api.sim-details.nordicsemi.cloud/2024-07-01/
 		}).node.addDependency(domain)
 
 		this.URL = `https://${apiDomain.domainName}/${api.deploymentStage.stageName}/`

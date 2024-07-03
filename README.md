@@ -17,8 +17,10 @@ Developed using [AWS CDK](https://aws.amazon.com/cdk) in
 
 ### Basic usage
 
+using [HTTPie](https://httpie.io/):
+
 ```bash
-http https://api.sim-details.nordicsemi.cloud/sim/<your SIM's ICCID>
+http https://api.sim-details.nordicsemi.cloud/2024-07-01/sim/<your SIM's ICCID>
 ```
 
 Returns
