@@ -22,6 +22,10 @@ export const seedingDBFunction = async ({
 		usedBytes: 50,
 		totalBytes: 1000,
 	}
+	const simDetails3 = {
+		usedBytes: 25,
+		totalBytes: 1000,
+	}
 	//put recent data on DB
 	await putSimDetails(db, outputs.cacheTableName)(
 		iccidNew,
@@ -29,7 +33,14 @@ export const seedingDBFunction = async ({
 		simDetails,
 		now,
 	)
-	//put old data in DB
+	//put 10 min old data in DB for iccidOld
+	await putSimDetails(db, outputs.cacheTableName)(
+		iccidOld,
+		true,
+		simDetails3,
+		new Date(Date.now() - 10 * 60 * 1000),
+	)
+	//put 6 min old data in DB for iccidOld
 	await putSimDetails(db, outputs.cacheTableName)(
 		iccidOld,
 		true,
