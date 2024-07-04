@@ -68,10 +68,6 @@ export class BackendStack extends Stack {
 				name: 'iccid',
 				type: DynamoDB.AttributeType.STRING,
 			},
-			sortKey: {
-				name: 'timestamp',
-				type: DynamoDB.AttributeType.STRING,
-			},
 			removalPolicy: isTest
 				? CloudFormation.RemovalPolicy.DESTROY
 				: CloudFormation.RemovalPolicy.RETAIN,
