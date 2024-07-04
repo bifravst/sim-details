@@ -17,5 +17,6 @@ void describe('fetchAndValidate', () => {
 		assert.equal(scope.isDone(), true)
 		assert.equal('error' in res, false)
 		assert.deepEqual('value' in res && res.value, testData)
+		assert.equal(nock.isDone(), true)
 	})
 })

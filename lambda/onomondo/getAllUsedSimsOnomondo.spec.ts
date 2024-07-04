@@ -30,5 +30,6 @@ void describe('getAllICCIDFromOnomondo', () => {
 		assert.equal(scope.isDone(), true)
 		assert.equal('error' in res, false)
 		assert.deepEqual(res, expectedResult)
+		assert.equal(nock.isDone(), true)
 	})
 })
