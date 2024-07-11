@@ -24,7 +24,7 @@
     "@aws-sdk/client-route-53": "3.614.0",
     "@aws-sdk/client-sqs": "3.614.0",
     "@aws-sdk/util-dynamodb": "3.614.0",
-    "@bifravst/aws-cdk-lambda-helpers": "1.8.34",
+    "@bifravst/aws-cdk-lambda-helpers": "1.8.36",
     "@bifravst/ci": "2.0.1",
     "@bifravst/eslint-config-typescript": "6.1.9",
     "@bifravst/prettier-config": "1.0.3",
