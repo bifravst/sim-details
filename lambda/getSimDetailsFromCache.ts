@@ -16,8 +16,9 @@ export const getSimDetailsFromCache =
 		  }
 		| {
 				sim: SimDetails & {
-					timestamp: Date
+					ts: Date
 				}
+				historyTs?: Date
 		  }
 	> => {
 		const simDetails = await db.send(
@@ -29,12 +30,12 @@ export const getSimDetailsFromCache =
 						S: String(iccid),
 					},
 				},
-				ProjectionExpression: 'usedBytes, totalBytes, SIMExisting, ts',
+				ProjectionExpression:
+					'usedBytes, totalBytes, SIMExisting, ts, historyTs',
 				Limit: 1,
 			}),
 		)
 		const sim = (simDetails.Items ?? []).map((item) => unmarshall(item))[0]
-
 		//No information about SIM in cache
 		if (sim === undefined) {
 			return { error: new SIMNotFoundError(iccid) }
@@ -46,12 +47,27 @@ export const getSimDetailsFromCache =
 		}
 		return {
 			sim: {
-				timestamp: new Date(sim.ts),
+				ts: new Date(sim.ts),
 				usedBytes: sim.usedBytes,
 				totalBytes: sim.totalBytes,
 			},
+			historyTs: new Date(sim.historyTs),
 		}
 	}
+
+/**
+ * Returns the last time the SIM was updated in the cache or null
+ */
+export const getSIMHistoryTs = (db: DynamoDBClient, cacheTableName: string) => {
+	const g = getSimDetailsFromCache(db, cacheTableName)
+	return async (iccid: string): Promise<Date | null> => {
+		const maybeSIM = await g(iccid)
+		if ('error' in maybeSIM || maybeSIM.historyTs === undefined) {
+			return null
+		}
+		return maybeSIM.historyTs
+	}
+}
 
 export class SIMNotFoundError extends Error {
 	public readonly iccid: string

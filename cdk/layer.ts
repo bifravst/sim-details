@@ -8,6 +8,7 @@ const dependencies: Array<keyof (typeof pJson)['dependencies']> = [
 	'@bifravst/from-env',
 	'@sinclair/typebox',
 	'e118-iin-list',
+	'@bifravst/timestream-helpers',
 ]
 
 export const packBaseLayer = async (): Promise<PackedLayer> =>
