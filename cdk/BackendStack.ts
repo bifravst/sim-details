@@ -155,7 +155,7 @@ export class BackendStack extends Stack {
 				},
 			},
 		)
-		simDetailsCacheTable.grantReadData(getAllSimUsageWirelessLogic.fn)
+		simDetailsCacheTable.grantReadWriteData(getAllSimUsageWirelessLogic.fn)
 		const rule = new Events.Rule(this, 'InvokeActivitiesRule', {
 			schedule: Events.Schedule.expression('rate(1 hour)'),
 			description: `Invoke the lambdas that fetches usage for all active SIMs`,
