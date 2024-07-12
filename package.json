@@ -40,7 +40,8 @@
     "glob": "11.0.0",
     "husky": "9.1.6",
     "nock": "14.0.0-beta.13",
-    "tsx": "4.19.1"
+    "tsx": "4.19.1",
+    "tsmatchers": "5.0.2"
   },
   "lint-staged": {
     "*.{md,json,yaml,yml}": [
@@ -77,6 +78,7 @@
     "@aws-sdk/client-dynamodb": "3.650.0",
     "@bifravst/from-env": "3.0.2",
     "@sinclair/typebox": "0.33.10",
+    "@bifravst/timestream-helpers": "6.0.3",
     "cfn-response": "1.0.1",
     "e118-iin-list": "4.1.4"
   }

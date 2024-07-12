@@ -15,6 +15,7 @@ import CloudFormation, {
 	aws_lambda as Lambda,
 	aws_sqs as SQS,
 	Stack,
+	aws_timestream as Timestream,
 } from 'aws-cdk-lib'
 import type { BackendLambdas } from './lambdas.js'
 import {
@@ -59,6 +60,18 @@ export class BackendStack extends Stack {
 			description: 'Role ARN to use in the deploy GitHub Actions Workflow',
 			value: cd.role.roleArn,
 		})
+		const db = new Timestream.CfnDatabase(this, 'db')
+		const table = new Timestream.CfnTable(this, 'table', {
+			databaseName: db.ref,
+			retentionProperties: {
+				MemoryStoreRetentionPeriodInHours: `24`,
+				MagneticStoreRetentionPeriodInDays: '30',
+			},
+		})
+		new CfnOutput(this, 'tableInfo', {
+			value: table.ref,
+			exportName: `${this.stackName}:tableInfo`,
+		})
 		// =====================================================================================
 		// Amazon DynamoDB table for storing sim details
 		// =====================================================================================
@@ -95,11 +108,13 @@ export class BackendStack extends Stack {
 		const resolutionJobsQueue = new SQS.Queue(this, 'resolutionJobsQueue', {
 			fifo: true,
 			queueName: `${this.stackName}.fifo`,
+			visibilityTimeout: Duration.seconds(60),
 		})
 
 		const wirelessLogicQueue = new SQS.Queue(this, 'wirelessLogicQueue', {
 			fifo: true,
 			queueName: `${this.stackName}-WL.fifo`,
+			visibilityTimeout: Duration.seconds(60),
 		})
 
 		const getBasicSIMInformation = new PackedLambdaFn(
@@ -114,6 +129,7 @@ export class BackendStack extends Stack {
 					CACHE_TABLE_NAME: simDetailsCacheTable.tableName,
 					SIM_DETAILS_JOBS_QUEUE: resolutionJobsQueue.queueUrl,
 					WIRELESS_LOGIC_QUEUE: wirelessLogicQueue.queueUrl,
+					TABLE_INFO: table.ref,
 				},
 				initialPolicy: [
 					new IAM.PolicyStatement({
@@ -122,6 +138,22 @@ export class BackendStack extends Stack {
 							wirelessLogicQueue.queueArn,
 						],
 						actions: ['sqs:SendMessage'],
+					}),
+					new IAM.PolicyStatement({
+						actions: [
+							'timestream:Select',
+							'timestream:DescribeTable',
+							'timestream:ListMeasures',
+						],
+						resources: [table.attrArn],
+					}),
+					new IAM.PolicyStatement({
+						actions: [
+							'timestream:DescribeEndpoints',
+							'timestream:SelectValues',
+							'timestream:CancelQuery',
+						],
+						resources: ['*'],
 					}),
 				],
 			},
@@ -139,10 +171,23 @@ export class BackendStack extends Stack {
 				environment: {
 					CACHE_TABLE_NAME: simDetailsCacheTable.tableName,
 					SIM_DETAILS_JOBS_QUEUE: resolutionJobsQueue.queueUrl,
+					TABLE_INFO: table.ref,
 				},
+				timeout: Duration.seconds(60),
+				initialPolicy: [
+					new IAM.PolicyStatement({
+						actions: ['timestream:DescribeEndpoints'],
+						resources: ['*'],
+					}),
+					new IAM.PolicyStatement({
+						actions: ['timestream:WriteRecords'],
+						resources: [table.attrArn],
+					}),
+				],
 			},
 		)
 		resolutionJobsQueue.grantSendMessages(getAllSimUsageOnomondo.fn)
+		simDetailsCacheTable.grantReadWriteData(getAllSimUsageOnomondo.fn)
 
 		const getAllSimUsageWirelessLogic = new PackedLambdaFn(
 			this,
@@ -152,7 +197,19 @@ export class BackendStack extends Stack {
 				layers: [baseLayer],
 				environment: {
 					CACHE_TABLE_NAME: simDetailsCacheTable.tableName,
+					TABLE_INFO: table.ref,
 				},
+				timeout: Duration.seconds(60),
+				initialPolicy: [
+					new IAM.PolicyStatement({
+						actions: ['timestream:WriteRecords'],
+						resources: [table.attrArn],
+					}),
+					new IAM.PolicyStatement({
+						actions: ['timestream:DescribeEndpoints'],
+						resources: ['*'],
+					}),
+				],
 			},
 		)
 		simDetailsCacheTable.grantReadWriteData(getAllSimUsageWirelessLogic.fn)
@@ -165,13 +222,22 @@ export class BackendStack extends Stack {
 				new EventsTargets.LambdaFunction(getAllSimUsageWirelessLogic.fn),
 			],
 		})
+		const fiveMinRule = new Events.Rule(this, 'InvokeActivities5MinRule', {
+			schedule: Events.Schedule.expression('rate(5 minutes)'),
+			description: `Invoke the lambdas that fetches usage for all active SIMs`,
+			enabled: true,
+			targets: [
+				new EventsTargets.LambdaFunction(getAllSimUsageWirelessLogic.fn),
+			],
+		})
+
 		getAllSimUsageOnomondo.fn.addPermission('InvokeByEvents', {
 			principal: new IAM.ServicePrincipal('events.amazonaws.com'),
 			sourceArn: rule.ruleArn,
 		})
 		getAllSimUsageWirelessLogic.fn.addPermission('InvokeByEvents', {
 			principal: new IAM.ServicePrincipal('events.amazonaws.com'),
-			sourceArn: rule.ruleArn,
+			sourceArn: fiveMinRule.ruleArn,
 		})
 
 		const storeSimInformationOnomondo = new PackedLambdaFn(
@@ -183,11 +249,57 @@ export class BackendStack extends Stack {
 				reservedConcurrentExecutions: 10,
 				environment: {
 					CACHE_TABLE_NAME: simDetailsCacheTable.tableName,
+					TABLE_INFO: table.ref,
 				},
+				timeout: Duration.seconds(60),
+				initialPolicy: [
+					new IAM.PolicyStatement({
+						actions: ['timestream:WriteRecords'],
+						resources: [table.attrArn],
+					}),
+					new IAM.PolicyStatement({
+						actions: ['timestream:DescribeEndpoints'],
+						resources: ['*'],
+					}),
+				],
 			},
 		)
-		simDetailsCacheTable.grantWriteData(storeSimInformationOnomondo.fn)
+		simDetailsCacheTable.grantReadWriteData(storeSimInformationOnomondo.fn)
 
+		const dailyOnomondoUpdate = new PackedLambdaFn(
+			this,
+			'dailyOnomondoUpdate',
+			lambdaSources.dailyOnomondoUpdate,
+			{
+				layers: [baseLayer],
+				environment: {
+					CACHE_TABLE_NAME: simDetailsCacheTable.tableName,
+					TABLE_INFO: table.ref,
+				},
+				timeout: Duration.seconds(60),
+				initialPolicy: [
+					new IAM.PolicyStatement({
+						actions: ['timestream:DescribeEndpoints'],
+						resources: ['*'],
+					}),
+					new IAM.PolicyStatement({
+						actions: ['timestream:WriteRecords'],
+						resources: [table.attrArn],
+					}),
+				],
+			},
+		)
+		simDetailsCacheTable.grantReadWriteData(dailyOnomondoUpdate.fn)
+		const dailyRule = new Events.Rule(this, 'InvokeActivitiesDailyRule', {
+			schedule: Events.Schedule.expression('rate(1 day)'),
+			description: `Invoke the lambdas that fetches usage for all active SIMs`,
+			enabled: true,
+			targets: [new EventsTargets.LambdaFunction(dailyOnomondoUpdate.fn)],
+		})
+		dailyOnomondoUpdate.fn.addPermission('InvokeByEvents', {
+			principal: new IAM.ServicePrincipal('events.amazonaws.com'),
+			sourceArn: dailyRule.ruleArn,
+		})
 		const storeSimInformationWirelessLogic = new PackedLambdaFn(
 			this,
 			'storeSimInformationWirelessLogic',
@@ -197,10 +309,21 @@ export class BackendStack extends Stack {
 				reservedConcurrentExecutions: 10,
 				environment: {
 					CACHE_TABLE_NAME: simDetailsCacheTable.tableName,
+					TABLE_INFO: table.ref,
 				},
+				initialPolicy: [
+					new IAM.PolicyStatement({
+						actions: ['timestream:WriteRecords'],
+						resources: [table.attrArn],
+					}),
+					new IAM.PolicyStatement({
+						actions: ['timestream:DescribeEndpoints'],
+						resources: ['*'],
+					}),
+				],
 			},
 		)
-		simDetailsCacheTable.grantWriteData(storeSimInformationWirelessLogic.fn)
+		simDetailsCacheTable.grantReadWriteData(storeSimInformationWirelessLogic.fn)
 
 		const api = new apigw.LambdaRestApi(this, 'simDetailsAPI', {
 			handler: getBasicSIMInformation.fn,
@@ -213,6 +336,8 @@ export class BackendStack extends Stack {
 		const simResource = api.root.addResource('sim')
 		const simByICCIDResource = simResource.addResource('{iccid}')
 		simByICCIDResource.addMethod('GET')
+		const simHistoryResource = simByICCIDResource.addResource('history')
+		simHistoryResource.addMethod('GET')
 
 		if (apiDomain === undefined) {
 			new CfnOutput(this, 'APIURL', {
@@ -278,4 +403,5 @@ export class BackendStack extends Stack {
 export type StackOutputs = {
 	APIURL: string
 	cacheTableName: string
+	tableInfo: string
 }
