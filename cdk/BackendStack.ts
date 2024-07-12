@@ -155,6 +155,7 @@ export class BackendStack extends Stack {
 				},
 			},
 		)
+		simDetailsCacheTable.grantReadData(getAllSimUsageWirelessLogic.fn)
 		const rule = new Events.Rule(this, 'InvokeActivitiesRule', {
 			schedule: Events.Schedule.expression('rate(1 hour)'),
 			description: `Invoke the lambdas that fetches usage for all active SIMs`,
@@ -269,7 +270,6 @@ export class BackendStack extends Stack {
 		)
 
 		wirelessLogicQueue.grantConsumeMessages(storeSimInformationWirelessLogic.fn)
-
 		resolutionJobsQueue.grantConsumeMessages(storeSimInformationOnomondo.fn)
 		resolutionJobsQueue.grantConsumeMessages(getAllSimUsageOnomondo.fn)
 	}
