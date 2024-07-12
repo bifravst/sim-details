@@ -40,6 +40,7 @@
     "glob": "11.0.0",
     "husky": "9.1.1",
     "nock": "14.0.0-beta.8",
+    "tsmatchers": "5.0.2",
     "tsx": "4.16.2"
   },
   "lint-staged": {
@@ -77,6 +78,7 @@
     "@aws-sdk/client-dynamodb": "3.616.0",
     "@bifravst/from-env": "3.0.2",
     "@hello.nrfcloud.com/proto": "14.2.1",
+    "@bifravst/timestream-helpers": "6.0.3",
     "@sinclair/typebox": "0.32.34",
     "cfn-response": "1.0.1",
     "e118-iin-list": "4.1.4"

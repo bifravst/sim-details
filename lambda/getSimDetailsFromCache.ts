@@ -16,8 +16,9 @@ export const getSimDetailsFromCache =
 		  }
 		| {
 				sim: SimDetails & {
-					timestamp: Date
+					ts: Date
 				}
+				historyTs?: string
 		  }
 	> => {
 		const simDetails = await db.send(
@@ -29,12 +30,12 @@ export const getSimDetailsFromCache =
 						S: String(iccid),
 					},
 				},
-				ProjectionExpression: 'usedBytes, totalBytes, SIMExisting, ts',
+				ProjectionExpression:
+					'usedBytes, totalBytes, SIMExisting, ts, historyTs',
 				Limit: 1,
 			}),
 		)
 		const sim = (simDetails.Items ?? []).map((item) => unmarshall(item))[0]
-
 		//No information about SIM in cache
 		if (sim === undefined) {
 			return { error: new SIMNotFoundError(iccid) }
@@ -46,10 +47,11 @@ export const getSimDetailsFromCache =
 		}
 		return {
 			sim: {
-				timestamp: new Date(sim.ts),
+				ts: new Date(sim.ts),
 				usedBytes: sim.usedBytes,
 				totalBytes: sim.totalBytes,
 			},
+			historyTs: sim.historyTs,
 		}
 	}
 

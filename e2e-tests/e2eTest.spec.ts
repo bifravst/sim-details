@@ -8,10 +8,15 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { getRandomICCID } from './getRandomICCID.js'
 import { putSimDetails } from '../lambda/putSimDetails.js'
 import { seedingDBFunction } from './seedingDBFunction.js'
+import { TimestreamWriteClient } from '@aws-sdk/client-timestream-write'
+import { getTimestampsForSeeding } from './getTimestampsForSeeding.js'
+import { seedTimestream } from './seedTimestream.js'
 
 const CFclient = new CloudFormationClient()
 export const outputs = await stackOutput(CFclient)<StackOutputs>(STACK_NAME)
 export const db = new DynamoDBClient({})
+export const tsw = new TimestreamWriteClient({})
+const [dbName, tableName] = outputs.tableInfo.split('|') as [string, string]
 
 const iccidNew = getRandomICCID(4573)
 const iccidOld = getRandomICCID(4573)
@@ -20,11 +25,18 @@ const iccidOldWL = getRandomICCID(4446)
 const iccidNotExisting = getRandomICCID(4573)
 const now = new Date()
 const sixMinAgo = new Date(Date.now() - 6 * 60 * 1000)
+const timestampsLastHour = getTimestampsForSeeding(60, 5)
+const timestampsLastDay = getTimestampsForSeeding(60 * 24, 60)
+const randomVal = [1, 3, 67, 1, 2, 3, 5, 7, 2, 1, 42, 4]
+const randomVal2 = [5, 3, 1, 7, 89, 3, 4, 1, 3, 7, 0, 0]
 
 void describe('e2e-tests', () => {
 	before(async () => {
 		//put notExisting SIM in DB
-		await putSimDetails(db, outputs.cacheTableName)(iccidNotExisting, false)
+		await putSimDetails(
+			db,
+			outputs.cacheTableName,
+		)({ iccid: iccidNotExisting, simExisting: false })
 		//put iccid from vendors in DB
 		await seedingDBFunction({
 			iccidNew,
@@ -38,14 +50,35 @@ void describe('e2e-tests', () => {
 			now,
 			sixMinAgo,
 		})
+		await seedTimestream(
+			timestampsLastHour,
+			randomVal,
+			iccidNewWL,
+			dbName,
+			tableName,
+		)
+		await seedTimestream(
+			timestampsLastDay,
+			randomVal,
+			iccidOldWL,
+			dbName,
+			tableName,
+		)
+		await seedTimestream(
+			timestampsLastHour,
+			randomVal2,
+			iccidNew,
+			dbName,
+			tableName,
+		)
 	})
 	const expectedBodyNew = {
-		timestamp: now.toISOString(),
+		ts: now.toISOString(),
 		usedBytes: 0,
 		totalBytes: 1000,
 	}
 	const expectedBodyOld = {
-		timestamp: sixMinAgo.toISOString(),
+		ts: sixMinAgo.toISOString(),
 		usedBytes: 50,
 		totalBytes: 1000,
 	}
@@ -56,7 +89,7 @@ void describe('e2e-tests', () => {
 		[iccidOld, expectedBodyOld, 200, 'old Onomondo'],
 	] as [
 		string,
-		{ timestamp: string; usedBytes: number; totalBytes: number },
+		{ ts: string; usedBytes: number; totalBytes: number },
 		number,
 		string,
 	][]) {
@@ -125,9 +158,53 @@ void describe('e2e-tests', () => {
 		assert.equal(req.headers.get('content-length'), '0')
 		assert.equal(await req.text(), '')
 	})
+	const expectedResLastHour: Array<Record<string, string | number>> = []
+	timestampsLastHour.forEach((ts, index) => {
+		expectedResLastHour.push({
+			ts: ts.toISOString(),
+			usedBytes: randomVal[index] ?? 0,
+		})
+	})
+	const expectedResLastHourOnomondo: Array<Record<string, string | number>> = []
+	timestampsLastHour.forEach((ts, index) => {
+		expectedResLastHourOnomondo.push({
+			ts: ts.toISOString(),
+			usedBytes: randomVal2[index] ?? 0,
+		})
+	})
+	const expectedResLastDay: Array<Record<string, string | number>> = []
+	timestampsLastDay.forEach((ts, index) => {
+		expectedResLastDay.push({
+			ts: ts.toISOString(),
+			usedBytes: randomVal[index] ?? 0,
+		})
+	})
+	for (const [iccid, response, timespan] of [
+		[iccidNewWL, expectedResLastHour, 'lastHour'],
+		[iccidOldWL, expectedResLastDay, 'lastDay'],
+		[iccidNew, expectedResLastHourOnomondo, 'lastHour'],
+	] as [string, Array<{ ts: string; usedBytes: number }>, string][]) {
+		void it(`should return measurements from timespan ${timespan} for iccid ${iccid}`, async () => {
+			const req = await fetchHistoricalData(iccid, timespan)
+			const expectedCacheControl = 'public, max-age=300'
+			const responseBody = await req.json()
+			assert.equal(req.headers.get('cache-control'), expectedCacheControl)
+			assert.equal(req.headers.get('Access-Control-Allow-Origin'), '*')
+			assert.equal(req.status, 200)
+			assert.deepEqual(responseBody, { measurements: response.reverse() })
+		})
+	}
 })
 
 const fetchData = async (iccid: string): Promise<Response> => {
 	const url = `${outputs.APIURL}/sim/${iccid}`
+	return await fetch(url)
+}
+
+const fetchHistoricalData = async (
+	iccid: string,
+	timeSpan: string,
+): Promise<Response> => {
+	const url = `${outputs.APIURL}/sim/${iccid}/historicalData/${timeSpan}`
 	return await fetch(url)
 }

@@ -30,6 +30,7 @@ void describe('getActiveSimsHistory()', () => {
 			apiKey: 'apiKey',
 			clientId: 'clientId',
 			wirelessLogicDataLimit: 5000000,
+			startMonth: 1,
 			numberOfMonths: 3,
 		})
 		const expectedResult = {
@@ -56,6 +57,7 @@ void describe('getActiveSimsHistory()', () => {
 			apiKey: 'apiKey',
 			clientId: 'clientId',
 			wirelessLogicDataLimit: 5000000,
+			startMonth: 1,
 			numberOfMonths: 3,
 		})
 		assert.equal(scope.isDone(), true)

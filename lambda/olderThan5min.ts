@@ -1,7 +1,10 @@
-export const olderThan5min = (
-	timeStampFromDB: Date,
-	dateNow?: Date,
-): boolean => {
+export const olderThan5min = ({
+	timeStampFromDB,
+	dateNow,
+}: {
+	timeStampFromDB: Date
+	dateNow?: Date
+}): boolean => {
 	const date1 = dateNow?.getTime() ?? new Date().getTime()
 	const date2 = new Date(timeStampFromDB).getTime()
 	const timeDiff = date1 - date2

@@ -4,18 +4,25 @@ import type { SimDetails } from './getSimDetailsFromCache.js'
 
 export const putSimDetails =
 	(db: DynamoDBClient, cacheTableName: string) =>
-	async (
-		iccid: string,
-		simExisting: boolean,
-		simDetails?: SimDetails,
-		ts?: Date,
-	): Promise<void> => {
+	async ({
+		iccid,
+		simExisting,
+		simDetails,
+		historyTs,
+		ts,
+	}: {
+		iccid: string
+		simExisting: boolean
+		simDetails?: SimDetails
+		historyTs?: Date
+		ts?: Date
+	}): Promise<void> => {
 		await db.send(
 			new PutItemCommand({
 				TableName: cacheTableName,
 				Item: marshall({
 					iccid,
-					timestamp: new Date().toISOString(),
+					historyTs: historyTs ? historyTs.toISOString() : '',
 					ttl: Date.now() / 1000 + 24 * 60 * 60 * 30, // 30 days
 					usedBytes: simDetails?.usedBytes ?? 0,
 					totalBytes: simDetails?.totalBytes ?? 0,

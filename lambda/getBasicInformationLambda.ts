@@ -15,15 +15,23 @@ import { olderThan5min } from './olderThan5min.js'
 import { ErrorType, toStatusCode } from '../api/ErrorInfo.js'
 import { identifyIssuer } from 'e118-iin-list'
 import { onomondoIIN, wirelessLogicIIN } from './constants.js'
+import { TimestreamQueryClient } from '@aws-sdk/client-timestream-query'
+import { getBinInterval } from './getBinInterval.js'
+import { HistoricalDataTimeSpans } from './historicalDataTimeSpans.js'
 
-const { simDetailsJobsQueue, cacheTableName, wirelessLogicQueue } = fromEnv({
-	simDetailsJobsQueue: 'SIM_DETAILS_JOBS_QUEUE',
-	wirelessLogicQueue: 'WIRELESS_LOGIC_QUEUE',
-	cacheTableName: 'CACHE_TABLE_NAME',
-})(process.env)
+const { simDetailsJobsQueue, cacheTableName, wirelessLogicQueue, tableInfo } =
+	fromEnv({
+		simDetailsJobsQueue: 'SIM_DETAILS_JOBS_QUEUE',
+		wirelessLogicQueue: 'WIRELESS_LOGIC_QUEUE',
+		cacheTableName: 'CACHE_TABLE_NAME',
+		tableInfo: 'TABLE_INFO', // db-S1mQFez6xa7o|table-RF9ZgR5BtR1K
+	})(process.env)
 
-export const db = new DynamoDBClient({})
+const db = new DynamoDBClient({})
 const sqs = new SQSClient({})
+const ts = new TimestreamQueryClient({})
+
+const [dbName, tableName] = tableInfo.split('|') as [string, string]
 
 const validIssuers: Record<string, string> = {
 	[onomondoIIN]: simDetailsJobsQueue,
@@ -31,12 +39,15 @@ const validIssuers: Record<string, string> = {
 }
 
 const getSimDetailsFromCacheFunc = getSimDetailsFromCache(db, cacheTableName)
+const getBinIntervalFunc = getBinInterval(ts, dbName, tableName)
 
 export const handler = async (
 	event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
 	console.log(JSON.stringify(event))
 	const iccid = event.pathParameters?.iccid ?? ''
+	const timeSpan = event.pathParameters?.timespan ?? ''
+
 	//Check if iccid is existing
 	const issuer = identifyIssuer(iccid)
 	if (issuer === undefined) {
@@ -81,23 +92,38 @@ export const handler = async (
 			await queueJob({
 				QueueUrl: validIssuers[issuer.issuerIdentifierNumber] as string,
 				sqs,
-			})({ payload: iccid, deduplicationId: iccid })
+			})({ payload: { iccid }, deduplicationId: iccid })
 			return res(toStatusCode[ErrorType.Conflict], { expires: 60 })()
 		}
 		//SIM not existing
 		return res(toStatusCode[ErrorType.EntityNotFound], { expires: 60 })()
 	}
-	//Case 2: old data in DynamoDB (> 5min)
-	const timeStampFromDB = maybeSimDetails.sim.timestamp
-	const isOld = olderThan5min(timeStampFromDB)
+	const timeStampFromDB = maybeSimDetails.sim.ts
+	const isOld = olderThan5min({ timeStampFromDB })
 	if (isOld == true) {
 		await queueJob({
 			QueueUrl: validIssuers[issuer.issuerIdentifierNumber] as string,
 			sqs,
-		})({ payload: iccid, deduplicationId: iccid })
-		return res(200, { expires: 300 })(maybeSimDetails.sim)
+		})({ payload: { iccid }, deduplicationId: iccid })
 	}
-	//Case 3: recent data in DynamoDB
+	const timeSpans = HistoricalDataTimeSpans[timeSpan]
+	if (timeSpans !== undefined) {
+		const result = await getBinIntervalFunc({
+			binIntervalMinutes: timeSpans.binIntervalMinutes,
+			durationHours: timeSpans.durationHours,
+			iccid,
+		})
+		const measurements = []
+		for (const measurement of result) {
+			measurements.push({
+				ts: measurement.time,
+				usedBytes: measurement['measure_value::double'],
+			})
+		}
+		return res(200, {
+			expires: 300,
+		})({ measurements })
+	}
 	return res(200, {
 		expires: 300,
 	})(maybeSimDetails.sim)

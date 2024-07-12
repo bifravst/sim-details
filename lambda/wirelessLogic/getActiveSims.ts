@@ -5,8 +5,9 @@ import { wirelessLogicIIN } from '../constants.js'
 
 export const getActiveSims =
 	(db: DynamoDBClient, cacheTableName: string) =>
-	async (): Promise<Array<string>> => {
+	async (): Promise<Record<string, number>> => {
 		const iccids = []
+		const iccidAndUsage: Record<string, number> = {}
 		const items = await db.send(new ScanCommand({ TableName: cacheTableName }))
 		const sims = (items.Items ?? []).map((item) => unmarshall(item))
 		for (const sim of sims) {
@@ -17,7 +18,8 @@ export const getActiveSims =
 				sim.SIMExisting === true
 			) {
 				iccids.push(sim.iccid)
+				iccidAndUsage[sim.iccid] = sim.usedBytes
 			}
 		}
-		return iccids
+		return iccidAndUsage
 	}

@@ -14,18 +14,25 @@ export const fetchWirelessLogicSIMDetails = async ({
 	apiKey,
 	clientId,
 	wirelessLogicDataLimit,
+	startMonth,
 	numberOfMonths,
 }: {
 	iccid: string | string[]
 	apiKey: string
 	clientId: string
 	wirelessLogicDataLimit: number
+	startMonth?: number
 	numberOfMonths?: number
 }): Promise<{ value: SimDetailsWL } | { error: Error }> => {
 	const wirelessLogicURL = 'https://simpro4.wirelesslogic.com/api/v3/'
 	const usage: Record<string, number> = {}
-	//Check data usage for the last 12 months
-	for (let month = 1; month <= (numberOfMonths ?? 12); month++) {
+	const currentMonth = new Date().getMonth() + 1
+	//api provides history for the last 3 months
+	for (
+		let month = startMonth ?? currentMonth - 4;
+		month <= (numberOfMonths ?? currentMonth);
+		month++
+	) {
 		const searchParam = {
 			month: String(month),
 			identifiers: Array.isArray(iccid) ? iccid.toString() : iccid,

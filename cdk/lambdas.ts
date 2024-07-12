@@ -10,6 +10,7 @@ export type BackendLambdas = {
 	getAllSimUsageOnomondo: PackedLambda
 	getAllSimUsageWirelessLogic: PackedLambda
 	createCNAMERecord: PackedLambda
+	dailyOnomondoUpdate: PackedLambda
 }
 
 const pack = async (id: string) => packLambdaFromPath(id, `lambda/${id}.ts`)
@@ -26,4 +27,5 @@ export const packBackendLambdas = async (): Promise<BackendLambdas> => ({
 		'createCNAMERecord',
 		'cdk/resources/api/createCNAMERecord.ts',
 	),
+	dailyOnomondoUpdate: await pack('dailyOnomondoUpdate'),
 })

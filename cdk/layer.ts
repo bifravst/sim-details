@@ -9,6 +9,7 @@ const dependencies: Array<keyof (typeof pJson)['dependencies']> = [
 	'@hello.nrfcloud.com/proto',
 	'@sinclair/typebox',
 	'e118-iin-list',
+	'@bifravst/timestream-helpers',
 ]
 
 export const packBaseLayer = async (): Promise<PackedLayer> =>

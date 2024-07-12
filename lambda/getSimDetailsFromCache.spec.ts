@@ -60,6 +60,7 @@ void describe('getSimDetailsFromCache()', () => {
 						ts: { N: 1719219232398 },
 						usedBytes: { N: 123 },
 						totalBytes: { N: 2000 },
+						historyTs: { S: '2024-08-13T07:08:55.000Z' },
 					},
 				],
 			}),
@@ -69,10 +70,11 @@ void describe('getSimDetailsFromCache()', () => {
 		} as any
 		const expectedRes = {
 			sim: {
-				timestamp: new Date('2024-06-24T08:53:52.398Z'),
+				ts: new Date('2024-06-24T08:53:52.398Z'),
 				totalBytes: 2000,
 				usedBytes: 123,
 			},
+			historyTs: '2024-08-13T07:08:55.000Z',
 		}
 		const simDetails = await getSimDetailsFromCache(db, cacheTableName)(iccid)
 		assert.deepEqual(simDetails, expectedRes)
