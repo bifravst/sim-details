@@ -26,10 +26,10 @@
     "@aws-sdk/util-dynamodb": "3.614.0",
     "@bifravst/aws-cdk-lambda-helpers": "1.8.38",
     "@bifravst/ci": "2.0.1",
+    "@bifravst/cloudformation-helpers": "9.1.1",
     "@bifravst/eslint-config-typescript": "6.1.9",
     "@bifravst/prettier-config": "1.0.4",
     "@commitlint/config-conventional": "19.2.2",
-    "@nordicsemiconductor/cloudformation-helpers": "9.1.0",
     "@types/aws-lambda": "8.10.141",
     "@types/cfn-response": "1.0.8",
     "@types/node": "20.14.10",
@@ -75,8 +75,8 @@
   "prettier": "@bifravst/prettier-config",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "3.614.0",
+    "@bifravst/from-env": "3.0.2",
     "@hello.nrfcloud.com/proto": "14.1.9",
-    "@nordicsemiconductor/from-env": "3.0.1",
     "@sinclair/typebox": "0.32.34",
     "cfn-response": "1.0.1",
     "e118-iin-list": "4.1.4"
