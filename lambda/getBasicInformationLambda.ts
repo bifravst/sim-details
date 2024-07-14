@@ -9,7 +9,7 @@ import {
 } from './getSimDetailsFromCache.js'
 import { queueJob } from './queueJob.js'
 import { SQSClient } from '@aws-sdk/client-sqs'
-import { fromEnv } from '@nordicsemiconductor/from-env'
+import { fromEnv } from '@bifravst/from-env'
 import { res } from '../api/res.js'
 import { olderThan5min } from './olderThan5min.js'
 import { ErrorType, toStatusCode } from '../api/ErrorInfo.js'

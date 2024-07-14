@@ -1,4 +1,4 @@
-import { fromEnv } from '@nordicsemiconductor/from-env'
+import { fromEnv } from '@bifravst/from-env'
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
 import { getActiveSims } from './wirelessLogic/getActiveSims.js'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
