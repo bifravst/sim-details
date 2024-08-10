@@ -76,7 +76,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "3.624.0",
     "@bifravst/from-env": "3.0.2",
-    "@hello.nrfcloud.com/proto": "14.3.3",
+    "@hello.nrfcloud.com/proto": "14.3.5",
     "@sinclair/typebox": "0.33.3",
     "cfn-response": "1.0.1",
     "e118-iin-list": "4.1.4"
