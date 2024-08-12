@@ -1,9 +1,9 @@
-import assert from 'node:assert/strict'
-import { fetchAndValidate } from './fetchAndValidate.js'
-import { describe, it } from 'node:test'
 import nock from 'nock'
-import testData from './onomondo/testData/Onomondo-example.json'
+import assert from 'node:assert/strict'
+import { describe, it } from 'node:test'
+import { fetchAndValidate } from './fetchAndValidate.js'
 import { SimInfo } from './onomondo/fetchOnomondoSimDetails.js'
+import testData from './onomondo/testData/Onomondo-example.json'
 
 void describe('fetchAndValidate', () => {
 	void it('should fetch the Onomondo SIM details', async () => {

@@ -1,10 +1,10 @@
-import { describe, it } from 'node:test'
-import assert from 'node:assert/strict'
 import nock from 'nock'
+import assert from 'node:assert/strict'
+import { describe, it } from 'node:test'
+import { fetchWirelessLogicSIMDetails } from './fetchWirelessLogicSIMDetails.js'
 import activeSimsTestData1 from './testData/activeSimHistory1.json'
 import activeSimsTestData2 from './testData/activeSimHistory2.json'
 import activeSimsTestData3 from './testData/activeSimHistory3.json'
-import { fetchWirelessLogicSIMDetails } from './fetchWirelessLogicSIMDetails.js'
 
 void describe('getActiveSimsHistory()', () => {
 	void it('should return the iccids of the active SIMs', async () => {

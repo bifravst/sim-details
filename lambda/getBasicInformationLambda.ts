@@ -1,20 +1,20 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import { SQSClient } from '@aws-sdk/client-sqs'
+import { fromEnv } from '@bifravst/from-env'
 import type {
 	APIGatewayProxyEventV2,
 	APIGatewayProxyResultV2,
 } from 'aws-lambda'
+import { identifyIssuer } from 'e118-iin-list'
+import { ErrorType, toStatusCode } from '../api/ErrorInfo.js'
+import { res } from '../api/res.js'
+import { onomondoIIN, wirelessLogicIIN } from './constants.js'
 import {
 	SIMNotFoundError,
 	getSimDetailsFromCache,
 } from './getSimDetailsFromCache.js'
-import { queueJob } from './queueJob.js'
-import { SQSClient } from '@aws-sdk/client-sqs'
-import { fromEnv } from '@bifravst/from-env'
-import { res } from '../api/res.js'
 import { olderThan5min } from './olderThan5min.js'
-import { ErrorType, toStatusCode } from '../api/ErrorInfo.js'
-import { identifyIssuer } from 'e118-iin-list'
-import { onomondoIIN, wirelessLogicIIN } from './constants.js'
+import { queueJob } from './queueJob.js'
 
 const { simDetailsJobsQueue, cacheTableName, wirelessLogicQueue } = fromEnv({
 	simDetailsJobsQueue: 'SIM_DETAILS_JOBS_QUEUE',

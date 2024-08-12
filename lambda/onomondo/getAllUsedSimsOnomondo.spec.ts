@@ -1,9 +1,9 @@
+import nock from 'nock'
+import assert from 'node:assert/strict'
+import { describe, it } from 'node:test'
+import { getAllUsedSimsOnomondo } from './getAllUsedSimsOnomondo.js'
 import testData from './testData/Onomondo-AllSims.json'
 import testData2 from './testData/Onomondo-AllSims2.json'
-import { describe, it } from 'node:test'
-import assert from 'node:assert/strict'
-import nock from 'nock'
-import { getAllUsedSimsOnomondo } from './getAllUsedSimsOnomondo.js'
 
 void describe('getAllICCIDFromOnomondo', () => {
 	void it('should return the iccids from all SIMs', async () => {

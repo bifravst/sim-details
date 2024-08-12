@@ -1,5 +1,5 @@
-import { fetchAndValidate } from '../fetchAndValidate.js'
 import { Type, type Static } from '@sinclair/typebox'
+import { fetchAndValidate } from '../fetchAndValidate.js'
 
 export const getAllUsedSimsOnomondo = async (
 	apiKey: string,

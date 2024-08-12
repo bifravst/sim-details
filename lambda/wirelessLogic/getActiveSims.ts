@@ -1,6 +1,6 @@
 import { type DynamoDBClient, ScanCommand } from '@aws-sdk/client-dynamodb'
-import { identifyIssuer } from 'e118-iin-list'
 import { unmarshall } from '@aws-sdk/util-dynamodb'
+import { identifyIssuer } from 'e118-iin-list'
 import { wirelessLogicIIN } from '../constants.js'
 
 export const getActiveSims =
