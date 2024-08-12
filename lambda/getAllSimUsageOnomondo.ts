@@ -1,8 +1,8 @@
 import { SQSClient } from '@aws-sdk/client-sqs'
+import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
+import { fromEnv } from '@bifravst/from-env'
 import { getAllUsedSimsOnomondo } from './onomondo/getAllUsedSimsOnomondo.js'
 import { queueJob } from './queueJob.js'
-import { fromEnv } from '@bifravst/from-env'
-import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
 
 const ssm = new SSMClient({})
 const { simDetailsJobsQueue } = fromEnv({

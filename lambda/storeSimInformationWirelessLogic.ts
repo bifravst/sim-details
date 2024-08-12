@@ -1,10 +1,10 @@
-import type { SQSEvent } from 'aws-lambda'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { putSimDetails } from './putSimDetails.js'
-import { fromEnv } from '@bifravst/from-env'
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
-import { fetchWirelessLogicSIMDetails } from './wirelessLogic/fetchWirelessLogicSIMDetails.js'
+import { fromEnv } from '@bifravst/from-env'
+import type { SQSEvent } from 'aws-lambda'
 import { wirelessLogicDataLimit } from './constants.js'
+import { putSimDetails } from './putSimDetails.js'
+import { fetchWirelessLogicSIMDetails } from './wirelessLogic/fetchWirelessLogicSIMDetails.js'
 
 const ssm = new SSMClient({})
 const db = new DynamoDBClient({})

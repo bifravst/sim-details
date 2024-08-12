@@ -1,6 +1,6 @@
 import {
-	validateWithTypeBox,
 	formatTypeBoxErrors,
+	validateWithTypeBox,
 } from '@hello.nrfcloud.com/proto'
 import { Type } from '@sinclair/typebox'
 

@@ -1,13 +1,13 @@
-import { Construct } from 'constructs'
+import { PackedLambdaFn } from '@bifravst/aws-cdk-lambda-helpers/cdk'
 import {
 	CustomResource,
 	aws_apigatewayv2 as HttpApi,
+	aws_iam as IAM,
 	ResolutionTypeHint,
 	type aws_lambda as Lambda,
-	aws_iam as IAM,
 } from 'aws-cdk-lib'
-import { PackedLambdaFn } from '@bifravst/aws-cdk-lambda-helpers/cdk'
 import type { IRestApi } from 'aws-cdk-lib/aws-apigateway'
+import { Construct } from 'constructs'
 import type { BackendLambdas } from '../lambdas.js'
 
 export type CustomDomain = {

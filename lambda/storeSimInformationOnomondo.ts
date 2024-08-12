@@ -1,9 +1,9 @@
-import type { SQSEvent } from 'aws-lambda'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { putSimDetails } from './putSimDetails.js'
-import { fromEnv } from '@bifravst/from-env'
-import { fetchOnomondoSIMDetails } from './onomondo/fetchOnomondoSimDetails.js'
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
+import { fromEnv } from '@bifravst/from-env'
+import type { SQSEvent } from 'aws-lambda'
+import { fetchOnomondoSIMDetails } from './onomondo/fetchOnomondoSimDetails.js'
+import { putSimDetails } from './putSimDetails.js'
 
 const ssm = new SSMClient({})
 const db = new DynamoDBClient({})

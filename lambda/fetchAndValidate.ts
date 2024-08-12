@@ -1,5 +1,5 @@
-import { type Static, type TObject } from '@sinclair/typebox'
 import { validateWithTypeBox } from '@hello.nrfcloud.com/proto'
+import { type Static, type TObject } from '@sinclair/typebox'
 
 export const fetchAndValidate = async <Schema extends TObject>({
 	schema,

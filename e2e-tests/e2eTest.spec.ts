@@ -1,12 +1,12 @@
-import { describe, it, before } from 'node:test'
-import assert from 'node:assert/strict'
-import type { StackOutputs } from '../cdk/BackendStack.js'
-import { stackOutput } from '@bifravst/cloudformation-helpers'
-import { STACK_NAME } from '../cdk/stackConfig.js'
 import { CloudFormationClient } from '@aws-sdk/client-cloudformation'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { getRandomICCID } from './getRandomICCID.js'
+import { stackOutput } from '@bifravst/cloudformation-helpers'
+import assert from 'node:assert/strict'
+import { before, describe, it } from 'node:test'
+import type { StackOutputs } from '../cdk/BackendStack.js'
+import { STACK_NAME } from '../cdk/stackConfig.js'
 import { putSimDetails } from '../lambda/putSimDetails.js'
+import { getRandomICCID } from './getRandomICCID.js'
 import { seedingDBFunction } from './seedingDBFunction.js'
 
 const CFclient = new CloudFormationClient()
