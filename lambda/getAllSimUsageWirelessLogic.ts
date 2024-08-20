@@ -76,7 +76,7 @@ export const handler = async (): Promise<void> => {
 	const historicalDataStoring = await storeHistoricalData(records)
 	if ('error' in historicalDataStoring) {
 		if (historicalDataStoring.error instanceof RejectedRecordsException) {
-			console.debug(
+			console.error(
 				`Rejected records`,
 				JSON.stringify(historicalDataStoring.error.RejectedRecords),
 			)

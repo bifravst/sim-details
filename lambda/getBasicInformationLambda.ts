@@ -113,13 +113,10 @@ export const handler = async (
 			durationHours: timeSpans.durationHours,
 			iccid,
 		})
-		const measurements = []
-		for (const measurement of result) {
-			measurements.push({
-				ts: measurement.time,
-				usedBytes: measurement['measure_value::double'],
-			})
-		}
+		const measurements = result.map((measurement) => ({
+			ts: measurement.time,
+			usedBytes: measurement['measure_value::double'],
+		}))
 		return res(200, {
 			expires: 300,
 		})({ measurements })

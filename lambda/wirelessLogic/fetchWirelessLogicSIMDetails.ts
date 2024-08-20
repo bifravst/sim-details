@@ -3,6 +3,7 @@ import {
 	formatTypeBoxErrors,
 } from '@hello.nrfcloud.com/proto'
 import { Type } from '@sinclair/typebox'
+import { getLast4Months } from './getLast4Months.js'
 
 export type SimDetailsWL = {
 	usedBytes: Record<string, number>
@@ -14,25 +15,19 @@ export const fetchWirelessLogicSIMDetails = async ({
 	apiKey,
 	clientId,
 	wirelessLogicDataLimit,
-	startMonth,
-	numberOfMonths,
+	startDate,
 }: {
 	iccid: string | string[]
 	apiKey: string
 	clientId: string
 	wirelessLogicDataLimit: number
-	startMonth?: number
-	numberOfMonths?: number
+	startDate?: Date
 }): Promise<{ value: SimDetailsWL } | { error: Error }> => {
 	const wirelessLogicURL = 'https://simpro4.wirelesslogic.com/api/v3/'
 	const usage: Record<string, number> = {}
-	const currentMonth = new Date().getMonth() + 1
+	const months = startDate ? getLast4Months(startDate) : getLast4Months()
 	//api provides history for the last 3 months
-	for (
-		let month = startMonth ?? currentMonth - 4;
-		month <= (numberOfMonths ?? currentMonth);
-		month++
-	) {
+	for (const month of months) {
 		const searchParam = {
 			month: String(month),
 			identifiers: Array.isArray(iccid) ? iccid.toString() : iccid,

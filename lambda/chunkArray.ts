@@ -1,10 +1,10 @@
-export const chunkArray = ({
+export const chunkArray = <Element>({
 	array,
 	chunkSize,
 }: {
-	array: Array<unknown>
+	array: Array<Element>
 	chunkSize: number
-}): Array<unknown> => {
+}): Array<Array<Element>> => {
 	const newArray = []
 	for (let i = 0; i < array.length; i += chunkSize) {
 		const chunk = array.slice(i, i + chunkSize)

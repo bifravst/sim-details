@@ -22,7 +22,7 @@ export const putSimDetails =
 				TableName: cacheTableName,
 				Item: marshall({
 					iccid,
-					historyTs: historyTs ? historyTs.toISOString() : '',
+					historyTs: historyTs ? historyTs.toISOString() : 'NULL',
 					ttl: Date.now() / 1000 + 24 * 60 * 60 * 30, // 30 days
 					usedBytes: simDetails?.usedBytes ?? 0,
 					totalBytes: simDetails?.totalBytes ?? 0,

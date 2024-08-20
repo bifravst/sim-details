@@ -46,6 +46,8 @@ export const getSimUsageHistoryOnomondo = async ({
 					},
 				}
 			}
+		} else {
+			hasMore = false
 		}
 	}
 	return res

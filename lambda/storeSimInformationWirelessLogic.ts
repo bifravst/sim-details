@@ -90,7 +90,7 @@ export const handler = async (event: SQSEvent): Promise<void> => {
 						if (
 							historicalDataStoring.error instanceof RejectedRecordsException
 						) {
-							console.debug(
+							console.error(
 								`Rejected records`,
 								JSON.stringify(historicalDataStoring.error.RejectedRecords),
 							)

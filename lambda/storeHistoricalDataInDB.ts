@@ -21,10 +21,9 @@ export const storeHistoricalDataInDB =
 		const recordsToTimestream = chunkArray({
 			array: records,
 			chunkSize: 100,
-		}) as _Record[][]
+		})
 		for (const rec of recordsToTimestream) {
 			if (rec.length == 0) {
-				console.log('Empty record!')
 				continue
 			} else {
 				try {

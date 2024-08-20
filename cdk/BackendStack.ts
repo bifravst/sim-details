@@ -65,7 +65,7 @@ export class BackendStack extends Stack {
 			databaseName: db.ref,
 			retentionProperties: {
 				MemoryStoreRetentionPeriodInHours: `24`,
-				MagneticStoreRetentionPeriodInDays: '365',
+				MagneticStoreRetentionPeriodInDays: '30',
 			},
 		})
 		new CfnOutput(this, 'tableInfo', {
@@ -291,7 +291,7 @@ export class BackendStack extends Stack {
 		)
 		simDetailsCacheTable.grantReadWriteData(dailyOnomondoUpdate.fn)
 		const dailyRule = new Events.Rule(this, 'InvokeActivitiesDailyRule', {
-			schedule: Events.Schedule.expression('cron(0 0 ? * * *)'),
+			schedule: Events.Schedule.expression('rate(1 days)'),
 			description: `Invoke the lambdas that fetches usage for all active SIMs`,
 			enabled: true,
 			targets: [new EventsTargets.LambdaFunction(dailyOnomondoUpdate.fn)],

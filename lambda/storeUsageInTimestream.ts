@@ -65,7 +65,7 @@ export const storeUsageInTimestream =
 			if ('error' in historicalDataStoring) {
 				newHistoryTs = historyTs
 				if (historicalDataStoring.error instanceof RejectedRecordsException) {
-					console.debug(
+					console.error(
 						`Rejected records`,
 						JSON.stringify(historicalDataStoring.error.RejectedRecords),
 					)
