@@ -18,7 +18,7 @@ export const getSimDetailsFromCache =
 				sim: SimDetails & {
 					ts: Date
 				}
-				historyTs?: string
+				historyTs?: Date
 		  }
 	> => {
 		const simDetails = await db.send(
@@ -51,7 +51,7 @@ export const getSimDetailsFromCache =
 				usedBytes: sim.usedBytes,
 				totalBytes: sim.totalBytes,
 			},
-			historyTs: sim.historyTs,
+			historyTs: new Date(sim.historyTs),
 		}
 	}
 

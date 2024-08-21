@@ -7,8 +7,9 @@ import { storeHistoricalDataInDB } from './storeHistoricalDataInDB.js'
 import { TimestreamWriteClient } from '@aws-sdk/client-timestream-write'
 import { getSimDetailsFromCache } from './getSimDetailsFromCache.js'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { storeUsageInTimestream } from './storeUsageInTimestream.js'
-
+import { getHistoryTs } from './getHistoryTs.js'
+import { getNewRecords } from './getNewRecords.js'
+import { RejectedRecordsException } from '@aws-sdk/client-timestream-write'
 const ssm = new SSMClient({})
 const { cacheTableName, simDetailsJobsQueue, tableInfo } = fromEnv({
 	cacheTableName: 'CACHE_TABLE_NAME',
@@ -36,18 +37,39 @@ if (apiKey === undefined) {
 	console.error('APIKEY undefined')
 	throw new Error(`System is not configured!`)
 }
-const storeUsageInTimestreamFunc = storeUsageInTimestream({
+
+const storeHistoricalDataFunc = storeHistoricalDataInDB({
+	tsw,
+	dbName,
+	tableName,
+})
+
+const getHistoryTsFunc = getHistoryTs({
 	getSimDetailsFromCache: getSimDetailsFromCache(db, cacheTableName),
-	storeHistoricalData: storeHistoricalDataInDB({ tsw, dbName, tableName }),
 })
 
 export const handler = async (): Promise<void> => {
 	const dataUsage = await getSimUsageHistoryOnomondo({ apiKey })
 	const iccids = Object.keys(dataUsage)
 	for (const iccid of iccids) {
-		const lastTs = await storeUsageInTimestreamFunc(iccid, dataUsage)
+		const { oldHistoryTs, newHistoryTs } = await getHistoryTsFunc(
+			iccid,
+			dataUsage,
+		)
+		const records = getNewRecords(iccid, oldHistoryTs, dataUsage)
+		const historicalDataStoring = await storeHistoricalDataFunc(records)
+		if ('error' in historicalDataStoring) {
+			if (historicalDataStoring.error instanceof RejectedRecordsException) {
+				console.error(
+					`Rejected records`,
+					JSON.stringify(historicalDataStoring.error.RejectedRecords),
+				)
+			} else {
+				console.error(historicalDataStoring.error)
+			}
+		}
 		await q({
-			payload: { iccid, lastTs, storeTimestream: false },
+			payload: { iccid, newHistoryTs, storeTimestream: false },
 			deduplicationId: iccid,
 		})
 	}

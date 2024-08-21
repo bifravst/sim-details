@@ -8,8 +8,9 @@ import { storeHistoricalDataInDB } from './storeHistoricalDataInDB.js'
 import { TimestreamWriteClient } from '@aws-sdk/client-timestream-write'
 import { getSimUsageHistoryOnomondo } from './onomondo/getAllUsedSimsOnomondo.js'
 import { getSimDetailsFromCache } from './getSimDetailsFromCache.js'
-import { storeUsageInTimestream } from './storeUsageInTimestream.js'
-
+import { getHistoryTs } from './getHistoryTs.js'
+import { getNewRecords } from './getNewRecords.js'
+import { RejectedRecordsException } from '@aws-sdk/client-timestream-write'
 const ssm = new SSMClient({})
 const tsw = new TimestreamWriteClient({})
 const db = new DynamoDBClient({})
@@ -32,11 +33,15 @@ if (apiKey === undefined) {
 	throw new Error(`APIKEY undefined`)
 }
 
-const storeUsageInTimestreamFunc = storeUsageInTimestream({
+const getHistoryTsFunc = getHistoryTs({
 	getSimDetailsFromCache: getSimDetailsFromCache(db, cacheTableName),
-	storeHistoricalData: storeHistoricalDataInDB({ tsw, dbName, tableName }),
 })
 
+const storeHistoricalDataFunc = storeHistoricalDataInDB({
+	tsw,
+	dbName,
+	tableName,
+})
 export const handler = async (event: SQSEvent): Promise<void> => {
 	console.log(JSON.stringify({ event }))
 	for (const message of event.Records) {
@@ -53,19 +58,37 @@ export const handler = async (event: SQSEvent): Promise<void> => {
 					simDetails: undefined,
 				})
 			} else {
-				let newHistoryTs = historyTs
+				let historyTsForStoring = historyTs
 				if (storeTimestream) {
 					const dataUsage = await getSimUsageHistoryOnomondo({
 						apiKey,
 						iccid,
 					})
-					newHistoryTs = await storeUsageInTimestreamFunc(iccid, dataUsage)
+					const { oldHistoryTs, newHistoryTs } = await getHistoryTsFunc(
+						iccid,
+						dataUsage,
+					)
+					historyTsForStoring = newHistoryTs
+					const records = getNewRecords(iccid, oldHistoryTs, dataUsage)
+					const historicalDataStoring = await storeHistoricalDataFunc(records)
+					if ('error' in historicalDataStoring) {
+						if (
+							historicalDataStoring.error instanceof RejectedRecordsException
+						) {
+							console.error(
+								`Rejected records`,
+								JSON.stringify(historicalDataStoring.error.RejectedRecords),
+							)
+						} else {
+							console.error(historicalDataStoring.error)
+						}
+					}
 				}
 				await putSimDetailsFunc({
 					iccid,
 					simExisting: true,
 					simDetails: simDetails.value,
-					historyTs: new Date(newHistoryTs),
+					historyTs: new Date(historyTsForStoring),
 				})
 			}
 		} catch {
