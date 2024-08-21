@@ -291,7 +291,7 @@ export class BackendStack extends Stack {
 		)
 		simDetailsCacheTable.grantReadWriteData(dailyOnomondoUpdate.fn)
 		const dailyRule = new Events.Rule(this, 'InvokeActivitiesDailyRule', {
-			schedule: Events.Schedule.expression('rate(1 days)'),
+			schedule: Events.Schedule.expression('rate(1 day)'),
 			description: `Invoke the lambdas that fetches usage for all active SIMs`,
 			enabled: true,
 			targets: [new EventsTargets.LambdaFunction(dailyOnomondoUpdate.fn)],
