@@ -5,7 +5,7 @@ import { usageToRecord } from './usageToRecord.js'
 void describe('usageToRecord', () => {
 	void it('should convert an iccid and a diff in used bytes into a Timestream record', () => {
 		const currentTime = new Date('2024-07-15T11:36:21.108Z')
-		const iccid = ''
+		const iccid = '89444600000000000001'
 		const diff = 50
 		const record = usageToRecord({
 			iccid,
@@ -19,7 +19,7 @@ void describe('usageToRecord', () => {
 				Dimensions: [
 					{
 						Name: 'ICCID',
-						Value: '',
+						Value: '89444600000000000001',
 					},
 					{
 						Name: 'ID',
@@ -34,6 +34,9 @@ void describe('usageToRecord', () => {
 				Version: 1,
 			},
 		}
+		console.log('record' in record && record.record)
+		console.log('record' in record)
+		console.log(record)
 		assert.deepEqual(record, expectedRes)
 	})
 })

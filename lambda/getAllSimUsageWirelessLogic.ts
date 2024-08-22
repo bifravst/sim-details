@@ -65,7 +65,10 @@ export const handler = async (): Promise<void> => {
 		iccids.map(async (iccid) => {
 			const diff =
 				(iccidAndUsage[iccid] ?? 0) - (usage.value.usedBytes[iccid] ?? 0)
-			records.push(usageToRecord({ iccid, diff }).record)
+			const record = usageToRecord({ iccid, diff })
+			if ('record' in record) {
+				records.push(record.record)
+			}
 			const simDetails = {
 				usedBytes: usage.value.usedBytes[iccid] ?? 0,
 				totalBytes: usage.value.totalBytes,

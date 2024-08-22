@@ -15,14 +15,16 @@ export const getNewRecords = (
 			if (new Date(entry[0]) <= new Date(historyTs)) {
 				continue
 			}
-			records.push(
-				usageToRecord({
-					iccid,
-					diff: entry[1].usedBytes,
-					currentTime: new Date(entry[0]),
-					id: entry[1].billId,
-				}).record,
-			)
+			const record = usageToRecord({
+				iccid,
+				diff: entry[1].usedBytes,
+				currentTime: new Date(entry[0]),
+				id: entry[1].billId,
+			})
+			if ('error' in record) {
+				continue
+			}
+			records.push(record.record)
 		}
 	}
 	return records

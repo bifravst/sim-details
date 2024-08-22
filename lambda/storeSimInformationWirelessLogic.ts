@@ -84,7 +84,11 @@ export const handler = async (event: SQSEvent): Promise<void> => {
 				})
 				const diff = (simDetails.value.usedBytes[iccid] ?? 0) - prevUsage
 				if (diff > 0) {
-					const records = [usageToRecord({ iccid, diff }).record]
+					const records = []
+					const record = usageToRecord({ iccid, diff })
+					if ('record' in record) {
+						records.push(record.record)
+					}
 					const historicalDataStoring = await storeHistoricalData(records)
 					if ('error' in historicalDataStoring) {
 						if (
