@@ -16,7 +16,7 @@ void describe('storeHistoricalDataInDB', () => {
 			Dimensions: [
 				{
 					Name: 'ICCID',
-					Value: '',
+					Value: '89444600000000000001',
 				},
 				{
 					Name: 'ID',
@@ -44,7 +44,7 @@ void describe('storeHistoricalDataInDB', () => {
 							Dimensions: [
 								{
 									Name: 'ICCID',
-									Value: '',
+									Value: '89444600000000000001',
 								},
 								{
 									Name: 'ID',
