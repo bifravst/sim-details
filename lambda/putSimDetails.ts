@@ -26,7 +26,7 @@ export const putSimDetails =
 					ttl: { N: (Date.now() / 1000 + 24 * 60 * 60 * 30).toString() }, // 30 days
 					usedBytes: { N: (simDetails?.usedBytes ?? 0).toString() },
 					totalBytes: { N: (simDetails?.totalBytes ?? 0).toString() },
-					simExisting: { BOOL: simExisting },
+					SIMExisting: { BOOL: simExisting },
 					ts: { S: (ts ?? new Date()).toISOString() },
 				},
 			}),
