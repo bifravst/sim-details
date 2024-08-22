@@ -24,13 +24,11 @@ export const usageToRecord = ({
 }): { record: _Record } | { error: Error } => {
 	//Check if iccid is existing
 	const issuer = identifyIssuer(iccid)
-	console.log(issuer)
 	//Check if iccid from a valid issuer
 	const isValidIccid = issuer
 		? validIssuers.includes(issuer.issuerIdentifierNumber)
 		: false
 
-	console.log(isValidIccid)
 	if (isValidIccid) {
 		return {
 			record: {
