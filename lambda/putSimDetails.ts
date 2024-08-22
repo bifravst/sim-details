@@ -1,5 +1,4 @@
 import { type DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb'
-import { marshall } from '@aws-sdk/util-dynamodb'
 import type { SimDetails } from './getSimDetailsFromCache.js'
 
 export const putSimDetails =
@@ -17,18 +16,19 @@ export const putSimDetails =
 		historyTs?: Date
 		ts?: Date
 	}): Promise<void> => {
+		const history = historyTs ? { S: historyTs.toISOString() } : { NULL: true }
 		await db.send(
 			new PutItemCommand({
 				TableName: cacheTableName,
-				Item: marshall({
-					iccid,
-					historyTs: historyTs ? historyTs.toISOString() : 'NULL',
-					ttl: Date.now() / 1000 + 24 * 60 * 60 * 30, // 30 days
-					usedBytes: simDetails?.usedBytes ?? 0,
-					totalBytes: simDetails?.totalBytes ?? 0,
-					SIMExisting: simExisting,
-					ts: (ts ?? new Date()).toISOString(),
-				}),
+				Item: {
+					iccid: { S: iccid },
+					historyTs: history,
+					ttl: { N: (Date.now() / 1000 + 24 * 60 * 60 * 30).toString() }, // 30 days
+					usedBytes: { N: (simDetails?.usedBytes ?? 0).toString() },
+					totalBytes: { N: (simDetails?.totalBytes ?? 0).toString() },
+					simExisting: { BOOL: simExisting },
+					ts: { S: (ts ?? new Date()).toISOString() },
+				},
 			}),
 		)
 	}
