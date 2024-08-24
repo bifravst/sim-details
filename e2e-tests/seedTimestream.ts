@@ -5,6 +5,8 @@ import {
 	type TimestreamWriteClient,
 } from '@aws-sdk/client-timestream-write'
 
+const isNotNull = (value: _Record | null) => value != null
+
 export const seedTimestream =
 	(tsw: TimestreamWriteClient) =>
 	async (
@@ -25,7 +27,6 @@ export const seedTimestream =
 			}
 			return null
 		})
-		const isNotNull = (value: _Record | null) => value != null
 		const filteredRec = records.filter(isNotNull)
 		await tsw.send(
 			new WriteRecordsCommand({
