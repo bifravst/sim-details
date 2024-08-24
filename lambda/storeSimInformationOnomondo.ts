@@ -56,7 +56,6 @@ export const handler = async (event: SQSEvent): Promise<void> => {
 			const body = JSON.parse(message.body)
 			const iccid = body.iccid
 			const historyTs: string | Date = body.lastTs
-
 			const storeTimestream: boolean = body.storeTimestream ?? true
 			const simDetails = await fetchOnomondoSIMDetails({ iccid, apiKey })
 			if ('error' in simDetails) {
