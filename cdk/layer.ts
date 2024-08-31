@@ -6,7 +6,6 @@ import type pJson from '../package.json'
 
 const dependencies: Array<keyof (typeof pJson)['dependencies']> = [
 	'@bifravst/from-env',
-	'@hello.nrfcloud.com/proto',
 	'@sinclair/typebox',
 	'e118-iin-list',
 ]

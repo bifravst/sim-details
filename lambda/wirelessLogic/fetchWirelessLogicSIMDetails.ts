@@ -1,8 +1,6 @@
-import {
-	formatTypeBoxErrors,
-	validateWithTypeBox,
-} from '@hello.nrfcloud.com/proto'
 import { Type } from '@sinclair/typebox'
+import { formatTypeBoxErrors } from '../formatTypeBoxErrors.js'
+import { validateWithTypeBox } from '../validateWithTypeBox.js'
 
 export type SimDetailsWL = {
 	usedBytes: Record<string, number>
