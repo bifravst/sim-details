@@ -34,9 +34,6 @@ void describe('usageToRecord', () => {
 				Version: 1,
 			},
 		}
-		console.log('record' in record && record.record)
-		console.log('record' in record)
-		console.log(record)
 		assert.deepEqual(record, expectedRes)
 	})
 })
