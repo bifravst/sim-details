@@ -46,6 +46,9 @@ export const handler = async (): Promise<void> => {
 		apiKey,
 		date: new Date(Date.now() - 60 * 1000 * 60 * 23), //yesterday
 	})
+	if ('error' in dataUsage) {
+		return
+	}
 	const iccids = Object.keys(dataUsage)
 	for (const iccid of iccids) {
 		const { oldHistoryTs } = await getHistoryTsFunc(iccid, dataUsage)

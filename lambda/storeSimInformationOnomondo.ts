@@ -71,6 +71,9 @@ export const handler = async (event: SQSEvent): Promise<void> => {
 						apiKey,
 						iccid,
 					})
+					if ('error' in dataUsage) {
+						return
+					}
 					const { oldHistoryTs, newHistoryTs } = await getHistoryTsFunc(
 						iccid,
 						dataUsage,

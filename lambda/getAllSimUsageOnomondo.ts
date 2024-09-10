@@ -50,6 +50,9 @@ const getHistoryTsFunc = getHistoryTs({
 
 export const handler = async (): Promise<void> => {
 	const dataUsage = await getSimUsageHistoryOnomondo({ apiKey })
+	if ('error' in dataUsage) {
+		return
+	}
 	const iccids = Object.keys(dataUsage)
 	for (const iccid of iccids) {
 		const { oldHistoryTs, newHistoryTs } = await getHistoryTsFunc(
