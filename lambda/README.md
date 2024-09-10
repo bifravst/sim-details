@@ -3,7 +3,7 @@
 By using the following GET request;
 
 ```
-https://api.sim-details.nordicsemi.cloud/2024-07-01/sim/<your SIM's ICCID>/historicalData/timeSpan=<timespan>
+https://api.sim-details.nordicsemi.cloud/2024-07-01/sim/<your SIM's ICCID>/history?timespan=<timespan>
 ```
 
 you should get the history for that SIM in the following format:
@@ -17,7 +17,7 @@ For the last hour this could be:
 Get request:
 
 ```
-https://api.sim-details.nordicsemi.cloud/2024-07-01/sim/<your SIM's ICCID>/historicalData/timeSpan=lastHour
+https://api.sim-details.nordicsemi.cloud/2024-07-01/sim/<your SIM's ICCID>/history?timespan=lastHour
 ```
 
 Returns:

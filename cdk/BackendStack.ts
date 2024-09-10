@@ -336,10 +336,8 @@ export class BackendStack extends Stack {
 		const simResource = api.root.addResource('sim')
 		const simByICCIDResource = simResource.addResource('{iccid}')
 		simByICCIDResource.addMethod('GET')
-		const simHistoryResource = simByICCIDResource.addResource('historicalData')
-		const simHistoryByICCIDAndTimespanResourse =
-			simHistoryResource.addResource('{timespan}')
-		simHistoryByICCIDAndTimespanResourse.addMethod('GET')
+		const simHistoryResource = simByICCIDResource.addResource('history')
+		simHistoryResource.addMethod('GET')
 
 		if (apiDomain === undefined) {
 			new CfnOutput(this, 'APIURL', {

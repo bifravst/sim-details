@@ -46,8 +46,7 @@ export const handler = async (
 ): Promise<APIGatewayProxyResultV2> => {
 	console.log(JSON.stringify(event))
 	const iccid = event.pathParameters?.iccid ?? ''
-	const timeSpan = event.pathParameters?.timespan ?? ''
-
+	const timeSpan = event.queryStringParameters
 	//Check if iccid is existing
 	const issuer = identifyIssuer(iccid)
 	if (issuer === undefined) {
@@ -106,7 +105,8 @@ export const handler = async (
 			sqs,
 		})({ payload: { iccid }, deduplicationId: iccid })
 	}
-	const timeSpans = HistoricalDataTimeSpans[timeSpan]
+	const timeSpanFromReq = timeSpan?.timespan
+	const timeSpans = HistoricalDataTimeSpans[timeSpanFromReq!]
 	if (timeSpans !== undefined) {
 		const result = await getBinIntervalFunc({
 			binIntervalMinutes: timeSpans.binIntervalMinutes,
