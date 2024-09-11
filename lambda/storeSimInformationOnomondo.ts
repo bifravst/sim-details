@@ -1,16 +1,20 @@
-import type { SQSEvent } from 'aws-lambda'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { putSimDetails } from './putSimDetails.js'
-import { fromEnv } from '@bifravst/from-env'
-import { fetchOnomondoSIMDetails } from './onomondo/fetchOnomondoSimDetails.js'
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
-import { storeHistoricalDataInDB } from './storeHistoricalDataInDB.js'
-import { TimestreamWriteClient } from '@aws-sdk/client-timestream-write'
-import { getSimUsageHistoryOnomondo } from './onomondo/getAllUsedSimsOnomondo.js'
-import { getSimDetailsFromCache } from './getSimDetailsFromCache.js'
-import { getHistoryTs } from './getHistoryTs.js'
+import {
+	RejectedRecordsException,
+	TimestreamWriteClient,
+} from '@aws-sdk/client-timestream-write'
+import { fromEnv } from '@bifravst/from-env'
+import type { SQSEvent } from 'aws-lambda'
+import { byTsDesc } from '../util/byTsDesc.js'
+import { MaybeDate } from '../util/MaybeDate.js'
 import { getNewRecords } from './getNewRecords.js'
-import { RejectedRecordsException } from '@aws-sdk/client-timestream-write'
+import { getSIMHistoryTs } from './getSimDetailsFromCache.js'
+import { fetchOnomondoSIMDetails } from './onomondo/fetchOnomondoSimDetails.js'
+import { getSimUsageHistoryOnomondo } from './onomondo/getAllUsedSimsOnomondo.js'
+import { putSimDetails } from './putSimDetails.js'
+import { storeHistoricalDataInDB } from './storeHistoricalDataInDB.js'
+import { TWO_MONTHS_AGO } from './constants.js'
 const ssm = new SSMClient({})
 const tsw = new TimestreamWriteClient({})
 const db = new DynamoDBClient({})
@@ -33,15 +37,13 @@ if (apiKey === undefined) {
 	throw new Error(`APIKEY undefined`)
 }
 
-const getHistoryTsFunc = getHistoryTs({
-	getSimDetailsFromCache: getSimDetailsFromCache(db, cacheTableName),
-})
-
 const storeHistoricalDataFunc = storeHistoricalDataInDB({
 	tsw,
 	dbName,
 	tableName,
 })
+
+const getHistoryTs = getSIMHistoryTs(db, cacheTableName)
 
 /* The constant storeTimestream decides if the history should be stored in Timestream or not,
 depending on whether the event comes from an API call or 'getAllSimUsageOnomondo' func.
@@ -55,7 +57,7 @@ export const handler = async (event: SQSEvent): Promise<void> => {
 		try {
 			const body = JSON.parse(message.body)
 			const iccid = body.iccid
-			const historyTs: string | Date = body.lastTs
+			const historyTs: undefined | Date = MaybeDate(body.lastTs)
 			const storeTimestream: boolean = body.storeTimestream ?? true
 			const simDetails = await fetchOnomondoSIMDetails({ iccid, apiKey })
 			if ('error' in simDetails) {
@@ -74,11 +76,12 @@ export const handler = async (event: SQSEvent): Promise<void> => {
 					if ('error' in dataUsage) {
 						return
 					}
-					const { oldHistoryTs, newHistoryTs } = await getHistoryTsFunc(
-						iccid,
-						dataUsage,
-					)
-					historyTsForStoring = newHistoryTs
+					const oldHistoryTs: Date =
+						(await getHistoryTs(iccid)) ?? TWO_MONTHS_AGO
+					const newHistoryTs: Date =
+						MaybeDate([...(dataUsage[iccid] ?? [])].sort(byTsDesc).pop()?.ts) ??
+						oldHistoryTs
+					historyTsForStoring = newHistoryTs ?? TWO_MONTHS_AGO
 					const records = getNewRecords(iccid, oldHistoryTs, dataUsage)
 					const historicalDataStoring = await storeHistoricalDataFunc(records)
 					if ('error' in historicalDataStoring) {
@@ -98,7 +101,7 @@ export const handler = async (event: SQSEvent): Promise<void> => {
 					iccid,
 					simExisting: true,
 					simDetails: simDetails.value,
-					historyTs: new Date(historyTsForStoring),
+					historyTs: historyTsForStoring,
 				})
 			}
 		} catch {

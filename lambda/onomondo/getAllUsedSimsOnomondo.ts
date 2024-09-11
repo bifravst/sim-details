@@ -1,10 +1,13 @@
 import { fetchAndValidate } from '../fetchAndValidate.js'
 import { Type, type Static } from '@sinclair/typebox'
 
-export type simInfoTS = {
+export type SIMUsage = {
+	ts: Date
 	usedBytes: number
 	billId: string
 }
+
+export type SIMUsageHistory = Record<string, Array<SIMUsage>>
 
 export const getSimUsageHistoryOnomondo = async ({
 	apiKey,
@@ -14,7 +17,7 @@ export const getSimUsageHistoryOnomondo = async ({
 	apiKey: string
 	iccid?: string
 	date?: Date
-}): Promise<Record<string, Record<string, simInfoTS>> | { error: Error }> => {
+}): Promise<SIMUsageHistory | { error: Error }> => {
 	const res = await fetchAllPaginatedData({ apiKey, iccid, date })
 	if ('value' in res) {
 		return res.value
@@ -49,11 +52,9 @@ export const fetchAllPaginatedData = async ({
 	iccid?: string
 	date?: Date
 	next_page?: string
-}): Promise<
-	{ value: Record<string, Record<string, simInfoTS>> } | { error: Error }
-> => {
+}): Promise<{ value: SIMUsageHistory } | { error: Error }> => {
 	try {
-		let localRes: Record<string, Record<string, simInfoTS>> = {}
+		let localRes: SIMUsageHistory = {}
 		const filter = `time:${(date ?? new Date()).toISOString().slice(0, 10)}`
 		const endpoint = 'https://api.onomondo.com/'
 		const param = next_page == undefined ? { filter } : { next_page, filter }
@@ -75,13 +76,13 @@ export const fetchAllPaginatedData = async ({
 			const hasMore = apiRes.value.pagination.has_more
 			for (const usageChunk of apiRes.value.usage) {
 				const dateString = `${usageChunk.time.replace(' ', 'T')}.000Z`
-				localRes[usageChunk.iccid] = {
-					...localRes[usageChunk.iccid],
-					[dateString]: {
-						usedBytes: usageChunk.bytes,
-						billId: usageChunk.bill_id,
-					},
-				}
+				if (localRes[usageChunk.iccid] === undefined)
+					localRes[usageChunk.iccid] = []
+				localRes[usageChunk.iccid]!.push({
+					usedBytes: usageChunk.bytes,
+					billId: usageChunk.bill_id,
+					ts: new Date(dateString),
+				})
 			}
 			if (hasMore) {
 				const funcRes = await fetchAllPaginatedData({

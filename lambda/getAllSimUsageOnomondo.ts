@@ -5,11 +5,13 @@ import { fromEnv } from '@bifravst/from-env'
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
 import { storeHistoricalDataInDB } from './storeHistoricalDataInDB.js'
 import { TimestreamWriteClient } from '@aws-sdk/client-timestream-write'
-import { getSimDetailsFromCache } from './getSimDetailsFromCache.js'
+import { getSIMHistoryTs } from './getSimDetailsFromCache.js'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { getHistoryTs } from './getHistoryTs.js'
 import { getNewRecords } from './getNewRecords.js'
 import { RejectedRecordsException } from '@aws-sdk/client-timestream-write'
+import { TWO_MONTHS_AGO } from './constants.js'
+import { byTsDesc } from '../util/byTsDesc.js'
+import { MaybeDate } from '../util/MaybeDate.js'
 const ssm = new SSMClient({})
 const { cacheTableName, simDetailsJobsQueue, tableInfo } = fromEnv({
 	cacheTableName: 'CACHE_TABLE_NAME',
@@ -44,9 +46,7 @@ const storeHistoricalDataFunc = storeHistoricalDataInDB({
 	tableName,
 })
 
-const getHistoryTsFunc = getHistoryTs({
-	getSimDetailsFromCache: getSimDetailsFromCache(db, cacheTableName),
-})
+const getHistoryTs = getSIMHistoryTs(db, cacheTableName)
 
 export const handler = async (): Promise<void> => {
 	const dataUsage = await getSimUsageHistoryOnomondo({ apiKey })
@@ -55,10 +55,10 @@ export const handler = async (): Promise<void> => {
 	}
 	const iccids = Object.keys(dataUsage)
 	for (const iccid of iccids) {
-		const { oldHistoryTs, newHistoryTs } = await getHistoryTsFunc(
-			iccid,
-			dataUsage,
-		)
+		const oldHistoryTs: Date = (await getHistoryTs(iccid)) ?? TWO_MONTHS_AGO
+		const newHistoryTs: Date =
+			MaybeDate([...(dataUsage[iccid] ?? [])].sort(byTsDesc).pop()?.ts) ??
+			oldHistoryTs
 		const records = getNewRecords(iccid, oldHistoryTs, dataUsage)
 		const historicalDataStoring = await storeHistoricalDataFunc(records)
 		if ('error' in historicalDataStoring) {

@@ -55,6 +55,20 @@ export const getSimDetailsFromCache =
 		}
 	}
 
+/**
+ * Returns the last time the SIM was updated in the cache or null
+ */
+export const getSIMHistoryTs = (db: DynamoDBClient, cacheTableName: string) => {
+	const g = getSimDetailsFromCache(db, cacheTableName)
+	return async (iccid: string): Promise<Date | null> => {
+		const maybeSIM = await g(iccid)
+		if ('error' in maybeSIM || maybeSIM.historyTs === undefined) {
+			return null
+		}
+		return maybeSIM.historyTs
+	}
+}
+
 export class SIMNotFoundError extends Error {
 	public readonly iccid: string
 	constructor(iccid: string) {
