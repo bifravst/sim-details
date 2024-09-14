@@ -77,7 +77,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "3.651.1",
     "@bifravst/from-env": "3.0.2",
-    "@sinclair/typebox": "0.33.10",
+    "@sinclair/typebox": "0.33.11",
     "@bifravst/timestream-helpers": "6.0.3",
     "cfn-response": "1.0.1",
     "e118-iin-list": "4.1.4"
