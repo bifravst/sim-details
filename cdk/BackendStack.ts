@@ -122,6 +122,7 @@ export class BackendStack extends Stack {
 			'getBasicSIMInformation',
 			lambdaSources.getBasicSIMInformation,
 			{
+				description: 'Handles API GET request and gets SIM info.',
 				layers: [baseLayer],
 				timeout: Duration.seconds(60),
 				memorySize: 1024,
@@ -167,6 +168,7 @@ export class BackendStack extends Stack {
 			'getAllSimUsageOnomondo',
 			lambdaSources.getAllSimUsageOnomondo,
 			{
+				description: 'Gets all the SIM usage for Onomondo SIMs.',
 				layers: [baseLayer],
 				environment: {
 					CACHE_TABLE_NAME: simDetailsCacheTable.tableName,
@@ -194,6 +196,7 @@ export class BackendStack extends Stack {
 			'getAllSimUsageWirelessLogic',
 			lambdaSources.getAllSimUsageWirelessLogic,
 			{
+				description: 'Gets all the SIM usage for Wireless Logic SIMs.',
 				layers: [baseLayer],
 				environment: {
 					CACHE_TABLE_NAME: simDetailsCacheTable.tableName,
@@ -245,6 +248,7 @@ export class BackendStack extends Stack {
 			'storeSimInformationOnomondo',
 			lambdaSources.storeSimInformationOnomondo,
 			{
+				description: 'Stores the SIM information & usage for Onomondo in DB.',
 				layers: [baseLayer],
 				reservedConcurrentExecutions: 10,
 				environment: {
@@ -271,6 +275,8 @@ export class BackendStack extends Stack {
 			'dailyOnomondoUpdate',
 			lambdaSources.dailyOnomondoUpdate,
 			{
+				description:
+					'Stores the SIM information & usage for Wireless Logic in DB, triggered daily.',
 				layers: [baseLayer],
 				environment: {
 					CACHE_TABLE_NAME: simDetailsCacheTable.tableName,
@@ -305,6 +311,8 @@ export class BackendStack extends Stack {
 			'storeSimInformationWirelessLogic',
 			lambdaSources.storeSimInformationWirelessLogic,
 			{
+				description:
+					'Stores the SIM information & usage for Wireless Logic in DB.',
 				layers: [baseLayer],
 				reservedConcurrentExecutions: 10,
 				environment: {
