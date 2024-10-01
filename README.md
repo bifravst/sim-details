@@ -87,9 +87,7 @@ request. If the SIM is not existing this will be cached for 30 days, and we will
 not try to fetch new data from the issuer during this period.
 
 If you send a request with a non valid ICCID you will get a 400 status code with
-an explanation of why it didn't validate in the response body. This is either
-because the input is not a valid ICCID or because the ICCID is from an issuer
-that we don't support.
+an explanation of why it didn't validate in the response body.
 
 ### Data history
 
@@ -132,7 +130,7 @@ The API will return different status codes based on different scenarios:
 | Status Code | Explanation                                                                                                                                   | Cache max-age |
 | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
 | 200         | OK. The request was successful and you should get the most recent data from cache. If data is older than 5 minutes, new data will be fetched. | 300           |
-| 400         | Bad Request. The request parameters didn't validate. Either the input is not a valid ICCID or from an issuer that we don't support.           | 60            |
+| 400         | Bad Request. The request parameters didn't validate.                                                                                          | 60            |
 | 404         | Not Found. The SIM doesn't exist in the issuers API. This response will be cached for 30 days.                                                | 2592000       |
 | 409         | Conflict. No information about SIM in cache. New data will be fetched from the issuers API.                                                   | 60            |
 | 500         | Internal Error.                                                                                                                               | 0             |

@@ -66,23 +66,12 @@ export const handler = async (
 		})
 	}
 	//Check if iccid from a valid issuer
-	const isValidIccid = Object.keys(validIssuers).includes(
+	const isSupportedIssuer = Object.keys(validIssuers).includes(
 		issuer.issuerIdentifierNumber,
 	)
-	if (isValidIccid === false) {
-		return res(toStatusCode[ErrorType.BadRequest], {
-			expires: 60,
-			contentType: 'application/problem+json',
-		})({
-			type: 'https://github.com/bifravst/sim-details',
-			title: "Your request parameters didn't validate.",
-			'invalid-params': [
-				{
-					name: 'iccid',
-					reason: 'Not a valid issuer identifier.',
-				},
-			],
-		})
+	if (isSupportedIssuer === false) {
+		//SIM not existing since issuer is not supported.
+		return res(toStatusCode[ErrorType.EntityNotFound], { expires: 60 })()
 	}
 	const maybeSimDetails = await getSimDetailsFromCacheFunc(iccid)
 	if ('error' in maybeSimDetails) {
