@@ -29,7 +29,7 @@ Returns
 {
   "totalBytes": 10000000,
   "usedBytes": 0,
-  "timestamp": "2024-07-01T12:11:43.066Z"
+  "ts": "2024-07-01T12:11:43.066Z"
 }
 ```
 
