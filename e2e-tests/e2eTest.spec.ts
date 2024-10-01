@@ -126,23 +126,13 @@ void describe('e2e-tests', () => {
 		assert.equal(req.headers.get('Access-Control-Allow-Origin'), '*')
 		assert.deepEqual(responseBody, expectedBody)
 	})
-	void it('should return a problem details message that describes the reason for the 400 error when not valid iccid', async () => {
+	void it('should return statusCode 404 if the SIM issuer is not supported.', async () => {
 		const req = await fetchDataFunc('89450421180216254864') //Telia Sonera A/S"
-		const expectedBody = {
-			type: 'https://github.com/bifravst/sim-details',
-			title: "Your request parameters didn't validate.",
-			'invalid-params': [
-				{
-					name: 'iccid',
-					reason: 'Not a valid issuer identifier.',
-				},
-			],
-		}
-		const responseBody = await req.json()
-		assert.equal(req.status, 400)
-		assert.equal(req.headers.get('Content-Type'), 'application/problem+json')
+		const expectedCacheControl = 'public, max-age=60'
+		assert.equal(req.status, 404)
+		assert.equal(req.headers.get('cache-control'), expectedCacheControl)
+		assert.equal(req.headers.get('content-length'), '0')
 		assert.equal(req.headers.get('Access-Control-Allow-Origin'), '*')
-		assert.deepEqual(responseBody, expectedBody)
 	})
 	void it('should return statusCode 409 and cache max-age=60 when the SIM information is not in DB', async () => {
 		const req = await fetchDataFunc(getRandomICCID(4573))
