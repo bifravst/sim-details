@@ -49,7 +49,7 @@ export class BackendStack extends Stack {
 	) {
 		super(parent, STACK_NAME)
 
-		const isTest = this.node.tryGetContext('isTest') === true
+		const isTest = this.node.getContext('isTest') === true
 
 		const cd = new ContinuousDeployment(this, {
 			repository,
@@ -64,7 +64,7 @@ export class BackendStack extends Stack {
 		const table = new Timestream.CfnTable(this, 'table', {
 			databaseName: db.ref,
 			retentionProperties: {
-				MemoryStoreRetentionPeriodInHours: `24`,
+				MemoryStoreRetentionPeriodInHours: isTest ? '72' : '24',
 				MagneticStoreRetentionPeriodInDays: '30',
 			},
 		})
