@@ -61,10 +61,10 @@ export class BackendStack extends Stack {
 			value: cd.role.roleArn,
 		})
 		const db = new Timestream.CfnDatabase(this, 'db')
-		const table = new Timestream.CfnTable(this, 'table', {
+		const table = new Timestream.CfnTable(this, 'table2', {
 			databaseName: db.ref,
 			retentionProperties: {
-				MemoryStoreRetentionPeriodInHours: `24`,
+				MemoryStoreRetentionPeriodInHours: `72`,
 				MagneticStoreRetentionPeriodInDays: '30',
 			},
 		})

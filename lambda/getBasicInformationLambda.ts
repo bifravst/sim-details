@@ -11,6 +11,7 @@ import { ErrorType, toStatusCode } from '../api/ErrorInfo.js'
 import { res } from '../api/res.js'
 import { onomondoIIN, wirelessLogicIIN } from './constants.js'
 import { getBinInterval } from './getBinInterval.js'
+import { getDataUsagePerTimespan } from './getDataUsagePerTimespan.js'
 import {
 	SIMNotFoundError,
 	getSimDetailsFromCache,
@@ -37,6 +38,10 @@ const validIssuers: Record<string, string> = {
 	[onomondoIIN]: simDetailsJobsQueue,
 	[wirelessLogicIIN]: wirelessLogicQueue,
 }
+
+const getDataUsagePerTimespanFunc = getDataUsagePerTimespan({
+	getBinInterval: getBinInterval(ts, dbName, tableName),
+})
 
 const getSimDetailsFromCacheFunc = getSimDetailsFromCache(db, cacheTableName)
 const getBinIntervalFunc = getBinInterval(ts, dbName, tableName)
@@ -110,7 +115,11 @@ export const handler = async (
 			expires: 300,
 		})({ measurements })
 	}
+	const dataUsagePerTimespan = await getDataUsagePerTimespanFunc(iccid)
 	return res(200, {
 		expires: 300,
-	})(maybeSimDetails.sim)
+	})({
+		...maybeSimDetails.sim,
+		dataUsagePerTimespan,
+	})
 }
