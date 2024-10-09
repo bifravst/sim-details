@@ -1,12 +1,13 @@
 import type { TimestreamQueryClient } from '@aws-sdk/client-timestream-query'
 import assert from 'node:assert/strict'
 import { describe, it, mock } from 'node:test'
-import { getBinInterval } from './getBinInterval.js'
+import { listRecordsForInterval } from './listRecordsForInterval.js'
 
 void describe('getBinInterval', () => {
 	void it('should get bin interval from db', async () => {
 		const binIntervalMinutes = 60
 		const durationHours = 1
+		const timespan = { binIntervalMinutes, durationHours }
 		const tsSend = mock.fn(async () =>
 			Promise.resolve({
 				$metadata: {
@@ -54,13 +55,12 @@ void describe('getBinInterval', () => {
 		const ts: TimestreamQueryClient = {
 			send: tsSend,
 		} as any
-		const binInterval = await getBinInterval(
+		const binInterval = await listRecordsForInterval(
 			ts,
 			'dbName',
 			'tableName',
 		)({
-			binIntervalMinutes,
-			durationHours,
+			timespan,
 			iccid: '89444612812874751710',
 		})
 		const expectedRes = {
