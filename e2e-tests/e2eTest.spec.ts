@@ -12,8 +12,8 @@ import { fetchHistoricalData } from './fetchHistoricalData.js'
 import { getRandomICCID } from './getRandomICCID.js'
 import { getTimestampsForSeeding } from './getTimestampsForSeeding.js'
 import { roundDownDate } from './roundDownDate.js'
-import { seedingDBFunction } from './seedingDBFunction.js'
 import { seedTimestream } from './seedTimestream.js'
+import { seedingDBFunction } from './seedingDBFunction.js'
 
 const CFclient = new CloudFormationClient()
 export const outputs = await stackOutput(CFclient)<StackOutputs>(STACK_NAME)
@@ -30,74 +30,143 @@ const now = new Date()
 const sixMinAgo = new Date(Date.now() - 6 * 60 * 1000)
 const timestampsLastHour = getTimestampsForSeeding(60, 5)
 const timestampsLastDay = getTimestampsForSeeding(60 * 24, 60)
+const timestampsLastTwoDays = getTimestampsForSeeding(60 * 24 * 1.5, 60 * 4)
 const randomUsedBytesVal = [1, 3, 67, 1, 2, 3, 5, 7, 2, 1, 42, 4]
 const randomUsedBytesVal2 = [5, 3, 1, 7, 89, 3, 4, 1, 3, 7, 0, 0]
+const randomUsedBytesForWeek = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 const seedTimestreamFunc = seedTimestream(tsw)
 const fetchDataFunc = fetchData(APIURL)
-void describe('e2e-tests', () => {
+void describe('e2e-tests', async () => {
 	before(async () => {
 		//put notExisting SIM in DB
 		await putSimDetails(
 			db,
 			outputs.cacheTableName,
 		)({ iccid: iccidNotExisting, simExisting: false })
-		//put iccid from vendors in DB
-		await seedingDBFunction({
-			iccidNew,
-			iccidOld,
+	})
+	for (const [
+		iccid,
+		simDetails,
+		usageTimestamp,
+		timestampsForTimestreamSeeding,
+		usedBytesForTimestreamSeeding,
+		response,
+		statusCode,
+		status,
+	] of [
+		[
+			iccidNewWL,
+			{ usedBytes: 0, totalBytes: 1000 },
 			now,
-			sixMinAgo,
-		})
-		await seedingDBFunction({
-			iccidNew: iccidNewWL,
-			iccidOld: iccidOldWL,
-			now,
-			sixMinAgo,
-		})
-		await seedTimestreamFunc(
 			timestampsLastHour,
 			randomUsedBytesVal,
-			iccidNewWL,
-			dbName,
-			tableName,
-		)
-		await seedTimestreamFunc(
-			timestampsLastDay,
-			randomUsedBytesVal,
-			iccidOldWL,
-			dbName,
-			tableName,
-		)
-		await seedTimestreamFunc(
+			{
+				dataUsagePerTimespan: {
+					lastDay: 138,
+					lastHour: 138,
+					lastMonth: 138,
+					lastWeek: 138,
+				},
+				ts: now.toISOString(),
+				usedBytes: 0,
+				totalBytes: 1000,
+			},
+			200,
+			'recent Wireless Logic',
+		],
+		[
+			iccidNew,
+			{ usedBytes: 0, totalBytes: 1000 },
+			now,
 			timestampsLastHour,
 			randomUsedBytesVal2,
-			iccidNew,
-			dbName,
-			tableName,
-		)
-	})
-	const expectedBodyNew = {
-		ts: now.toISOString(),
-		usedBytes: 0,
-		totalBytes: 1000,
-	}
-	const expectedBodyOld = {
-		ts: sixMinAgo.toISOString(),
-		usedBytes: 50,
-		totalBytes: 1000,
-	}
-	for (const [iccid, response, statusCode, status] of [
-		[iccidNewWL, expectedBodyNew, 200, 'recent Wireless Logic'],
-		[iccidNew, expectedBodyNew, 200, 'recent Onomondo'],
-		[iccidOldWL, expectedBodyOld, 200, 'old Wireless Logic'],
-		[iccidOld, expectedBodyOld, 200, 'old Onomondo'],
+			{
+				dataUsagePerTimespan: {
+					lastDay: 123,
+					lastHour: 123,
+					lastMonth: 123,
+					lastWeek: 123,
+				},
+				ts: now.toISOString(),
+				usedBytes: 0,
+				totalBytes: 1000,
+			},
+			200,
+			'recent Onomondo',
+		],
+		[
+			iccidOldWL,
+			{ usedBytes: 50, totalBytes: 1000 },
+			sixMinAgo,
+			timestampsLastDay,
+			randomUsedBytesVal,
+			{
+				dataUsagePerTimespan: {
+					lastDay: 138,
+					lastHour: 1,
+					lastMonth: 138,
+					lastWeek: 138,
+				},
+				ts: sixMinAgo.toISOString(),
+				usedBytes: 50,
+				totalBytes: 1000,
+			},
+			200,
+			'old Wireless Logic',
+		],
+		[
+			iccidOld,
+			{ usedBytes: 50, totalBytes: 1000 },
+			sixMinAgo,
+			timestampsLastTwoDays,
+			randomUsedBytesForWeek,
+			{
+				dataUsagePerTimespan: {
+					lastDay: 21,
+					lastHour: 1,
+					lastMonth: 45,
+					lastWeek: 45,
+				},
+				ts: sixMinAgo.toISOString(),
+				usedBytes: 50,
+				totalBytes: 1000,
+			},
+			200,
+			'old Onomondo',
+		],
 	] as [
 		string,
-		{ ts: string; usedBytes: number; totalBytes: number },
+		{ usedBytes: number; totalBytes: number },
+		Date,
+		Date[],
+		number[],
+		{
+			dataUsagePerTimespan: {
+				lastDay: number
+				lastHour: number
+				lastWeek: number
+				lastMonth: number
+			}
+			ts: string
+			usedBytes: number
+			totalBytes: number
+		},
 		number,
 		string,
 	][]) {
+		await seedingDBFunction({
+			iccid,
+			usageTimestamp,
+			simDetails,
+		})
+		await seedTimestreamFunc(
+			timestampsForTimestreamSeeding,
+			usedBytesForTimestreamSeeding,
+			iccid,
+			dbName,
+			tableName,
+		)
 		void it(`should return statusCode ${statusCode}, cache max-age=300 and correct body for iccid: ${iccid} with status ${status}`, async () => {
 			const req = await fetchDataFunc(iccid)
 			const expectedCacheControl = 'public, max-age=300'

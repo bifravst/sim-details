@@ -13,17 +13,18 @@ import { identifyIssuer } from 'e118-iin-list'
 import { ErrorType, toStatusCode } from '../api/ErrorInfo.js'
 import { res } from '../api/res.js'
 import { onomondoIIN, wirelessLogicIIN } from './constants.js'
-import { getBinInterval } from './getBinInterval.js'
 import {
 	SIMNotFoundError,
 	getSimDetailsFromCache,
 } from './getSimDetailsFromCache.js'
 import { getSimHistoryFromCache } from './getSIMHistoryFromCache.js'
 import { HistoricalDataTimeSpans } from './historicalDataTimeSpans.js'
+import { listRecordsForInterval } from './listRecordsForInterval.js'
 import { metricsForComponent } from './metrics.js'
 import { olderThan5min } from './olderThan5min.js'
 import { putSimHistory } from './putSimHistory.js'
 import { queueJob } from './queueJob.js'
+
 const {
 	simDetailsJobsQueue,
 	cacheTableName,
@@ -55,7 +56,8 @@ const getSimHistoryFromCacheFunc = getSimHistoryFromCache(
 	db,
 	cacheHistoryTableName,
 )
-const getBinIntervalFunc = getBinInterval(ts, dbName, tableName)
+const listRecordsForIntervalFunc = listRecordsForInterval(ts, dbName, tableName)
+
 const { track, metrics } = metricsForComponent('getAllSimUsageOnomondo')
 const h = async (
 	event: APIGatewayProxyEventV2,
@@ -130,9 +132,11 @@ const h = async (
 				? olderThan5min({ timeStampFromDB: maybeHistory.simHistory.ts })
 				: false
 		if ('error' in maybeHistory || maybeHistory === undefined || isOld) {
-			const result = await getBinIntervalFunc({
-				binIntervalMinutes: timeSpans.binIntervalMinutes,
-				durationHours: timeSpans.durationHours,
+			const result = await listRecordsForIntervalFunc({
+				timespan: {
+					binIntervalMinutes: timeSpans.binIntervalMinutes,
+					durationHours: timeSpans.durationHours,
+				},
 				iccid,
 			})
 			const measurements = result.map((measurement) => ({
@@ -157,9 +161,29 @@ const h = async (
 		}
 	}
 	track('api:successSimDetails', MetricUnit.Count, 1)
+	const timespans = Object.keys(HistoricalDataTimeSpans)
+	const dataUsagePerTimespan: Record<string, number> = {}
+	for (const timespan of timespans) {
+		const history = await listRecordsForIntervalFunc({
+			timespan: {
+				binIntervalMinutes:
+					HistoricalDataTimeSpans[timespan]!.binIntervalMinutes,
+				durationHours: HistoricalDataTimeSpans[timespan]!.durationHours,
+			},
+			iccid,
+		})
+		let sum = 0
+		for (const h of history) {
+			sum += h['measure_value::double']
+		}
+		dataUsagePerTimespan[timespan] = sum
+	}
 	return res(200, {
 		expires: 300,
-	})(maybeSimDetails.sim)
+	})({
+		...maybeSimDetails.sim,
+		dataUsagePerTimespan,
+	})
 }
 
 export const handler = middy().use(logMetrics(metrics)).handler(h)
