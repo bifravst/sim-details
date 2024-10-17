@@ -29,8 +29,10 @@ const now = new Date()
 const sixMinAgo = new Date(Date.now() - 6 * 60 * 1000)
 const timestampsLastHour = getTimestampsForSeeding(60, 5)
 const timestampsLastDay = getTimestampsForSeeding(60 * 24, 60)
+const timestampsLastTwoDays = getTimestampsForSeeding(60 * 24 * 1.5, 60 * 4)
 const randomUsedBytesVal = [1, 3, 67, 1, 2, 3, 5, 7, 2, 1, 42, 4]
 const randomUsedBytesVal2 = [5, 3, 1, 7, 89, 3, 4, 1, 3, 7, 0, 0]
+const randomUsedBytesForWeek = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 const seedTimestreamFunc = seedTimestream(tsw)
 const fetchDataFunc = fetchData(APIURL)
@@ -69,6 +71,13 @@ void describe('e2e-tests', () => {
 			tableName,
 		)
 		await seedTimestreamFunc(
+			timestampsLastTwoDays,
+			randomUsedBytesForWeek,
+			iccidOld,
+			dbName,
+			tableName,
+		)
+		await seedTimestreamFunc(
 			timestampsLastHour,
 			randomUsedBytesVal2,
 			iccidNew,
@@ -76,21 +85,55 @@ void describe('e2e-tests', () => {
 			tableName,
 		)
 	})
-	const expectedBodyNew = {
+	const expectedBodyNewWL = {
 		ts: now.toISOString(),
 		usedBytes: 0,
 		totalBytes: 1000,
+		dataUsagePerTimespan: {
+			lastDay: 138,
+			lastHour: 138,
+			lastMonth: 138,
+			lastWeek: 138,
+		},
+	}
+	const expectedBodyNewO = {
+		ts: now.toISOString(),
+		usedBytes: 0,
+		totalBytes: 1000,
+		dataUsagePerTimespan: {
+			lastDay: 123,
+			lastHour: 123,
+			lastMonth: 123,
+			lastWeek: 123,
+		},
 	}
 	const expectedBodyOld = {
 		ts: sixMinAgo.toISOString(),
 		usedBytes: 50,
 		totalBytes: 1000,
+		dataUsagePerTimespan: {
+			lastDay: 138,
+			lastHour: 1,
+			lastMonth: 138,
+			lastWeek: 138,
+		},
+	}
+	const expectedBodyOldO = {
+		ts: sixMinAgo.toISOString(),
+		usedBytes: 50,
+		totalBytes: 1000,
+		dataUsagePerTimespan: {
+			lastDay: 21,
+			lastHour: 1,
+			lastMonth: 45,
+			lastWeek: 45,
+		},
 	}
 	for (const [iccid, response, statusCode, status] of [
-		[iccidNewWL, expectedBodyNew, 200, 'recent Wireless Logic'],
-		[iccidNew, expectedBodyNew, 200, 'recent Onomondo'],
+		[iccidNewWL, expectedBodyNewWL, 200, 'recent Wireless Logic'],
+		[iccidNew, expectedBodyNewO, 200, 'recent Onomondo'],
 		[iccidOldWL, expectedBodyOld, 200, 'old Wireless Logic'],
-		[iccidOld, expectedBodyOld, 200, 'old Onomondo'],
+		[iccidOld, expectedBodyOldO, 200, 'old Onomondo'],
 	] as [
 		string,
 		{ ts: string; usedBytes: number; totalBytes: number },
