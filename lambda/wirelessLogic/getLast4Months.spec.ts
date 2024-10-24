@@ -13,4 +13,9 @@ void describe('getLast4months', () => {
 		const res = getLast4Months(date)
 		assert.deepEqual(res, [8, 7, 6, 5])
 	})
+	void it('should return the last 4 months from August', () => {
+		const date = new Date('2024-08-31T08:04:14.000Z')
+		const res = getLast4Months(date)
+		assert.deepEqual(res, [8, 7, 6, 5])
+	})
 })

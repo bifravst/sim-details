@@ -1,3 +1,5 @@
+import { MetricUnit } from '@aws-lambda-powertools/metrics'
+import { logMetrics } from '@aws-lambda-powertools/metrics/middleware'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
 import {
@@ -6,6 +8,8 @@ import {
 	type _Record,
 } from '@aws-sdk/client-timestream-write'
 import { fromEnv } from '@bifravst/from-env'
+import { metricsForComponent } from '@hello.nrfcloud.com/lambda-helpers/metrics'
+import middy from '@middy/core'
 import { wirelessLogicDataLimit } from './constants.js'
 import { putSimDetails } from './putSimDetails.js'
 import { storeHistoricalDataInDB } from './storeHistoricalDataInDB.js'
@@ -48,7 +52,9 @@ if (clientId === undefined) {
 const getSims = getActiveSims(db, cacheTableName)
 const putSimDetailsFunc = putSimDetails(db, cacheTableName)
 const storeHistoricalData = storeHistoricalDataInDB({ tsw, dbName, tableName })
-export const handler = async (): Promise<void> => {
+const { track, metrics } = metricsForComponent('getAllSimUsageWL')
+
+const h = async (): Promise<void> => {
 	const iccidAndUsage = await getSims()
 	const iccids = Object.keys(iccidAndUsage)
 	const usage = await fetchWirelessLogicSIMDetails({
@@ -59,6 +65,7 @@ export const handler = async (): Promise<void> => {
 	})
 	if ('error' in usage) {
 		console.error(usage.error)
+		track('getAllSimUsageWL:dataUsageError', MetricUnit.Count, 1)
 		return
 	}
 	const records: _Record[] = []
@@ -77,6 +84,8 @@ export const handler = async (): Promise<void> => {
 			await putSimDetailsFunc({ iccid, simExisting: true, simDetails })
 		}),
 	)
+	let numberOfRejectedRecords = 0
+	let numberOfErrors = 0
 	const historicalDataStoring = await storeHistoricalData(records)
 	if ('error' in historicalDataStoring) {
 		if (historicalDataStoring.error instanceof RejectedRecordsException) {
@@ -87,5 +96,20 @@ export const handler = async (): Promise<void> => {
 		} else {
 			console.error(historicalDataStoring.error)
 		}
+		numberOfErrors = historicalDataStoring.numberOfErrors
+		numberOfRejectedRecords = historicalDataStoring.numberOfRejectedRecords
 	}
+	track('WL:ActiveIccids', MetricUnit.Count, iccids.length)
+	track(
+		`getAllSimUsageWLRejectedRecords`,
+		MetricUnit.Count,
+		numberOfRejectedRecords,
+	)
+	track(`getAllSimUsageWLRecordError`, MetricUnit.Count, numberOfErrors)
+	track(
+		`getAllSimUsageWLRecordsWritten`,
+		MetricUnit.Count,
+		records.length - numberOfErrors - numberOfRejectedRecords,
+	)
 }
+export const handler = middy().use(logMetrics(metrics)).handler(h)

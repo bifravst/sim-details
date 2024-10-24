@@ -1,7 +1,8 @@
-import type {
-	_Record,
-	TimestreamWriteClient,
+import {
+	type _Record,
+	type TimestreamWriteClient,
 } from '@aws-sdk/client-timestream-write'
+import assert from 'node:assert'
 import { describe, it, mock } from 'node:test'
 import { check, objectMatching } from 'tsmatchers'
 import { storeHistoricalDataInDB } from './storeHistoricalDataInDB.js'
@@ -61,5 +62,41 @@ void describe('storeHistoricalDataInDB', () => {
 				},
 			}),
 		)
+	})
+
+	void it('Rejectedrecords', async () => {
+		const tsSend = mock.fn(async () => {
+			throw new Error()
+		})
+		const ts: TimestreamWriteClient = {
+			send: tsSend,
+		} as any
+		const record = {
+			Dimensions: [
+				{
+					Name: 'ICCID',
+					Value: '89444600000000000001',
+				},
+				{
+					Name: 'ID',
+					Value: '049f11c1895feb4a6ff42770c0fe78e559aab765',
+				},
+			],
+			MeasureName: 'UsedBytes',
+			MeasureValue: '50',
+			MeasureValueType: 'DOUBLE',
+			Time: '1721043381108',
+			TimeUnit: 'MILLISECONDS',
+		}
+		const res = await storeHistoricalDataInDB({
+			tsw: ts,
+			dbName: 'dbName',
+			tableName: 'tableName',
+		})([record] as _Record[])
+		assert.deepEqual(res, {
+			error: new Error('Error when writing records'),
+			numberOfErrors: 1,
+			numberOfRejectedRecords: 0,
+		})
 	})
 })
