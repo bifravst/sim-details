@@ -1,3 +1,4 @@
+import { MetricUnit } from '@aws-lambda-powertools/metrics'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { SQSClient } from '@aws-sdk/client-sqs'
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
@@ -6,6 +7,7 @@ import {
 	TimestreamWriteClient,
 } from '@aws-sdk/client-timestream-write'
 import { fromEnv } from '@bifravst/from-env'
+import { metricsForComponent } from '@hello.nrfcloud.com/lambda-helpers/metrics'
 import { byTsDesc } from '../util/byTsDesc.js'
 import { MaybeDate } from '../util/MaybeDate.js'
 import { TWO_MONTHS_AGO } from './constants.js'
@@ -14,6 +16,7 @@ import { getSIMHistoryTs } from './getSimDetailsFromCache.js'
 import { getSimUsageHistoryOnomondo } from './onomondo/getAllUsedSimsOnomondo.js'
 import { queueJob } from './queueJob.js'
 import { storeHistoricalDataInDB } from './storeHistoricalDataInDB.js'
+
 const ssm = new SSMClient({})
 const { cacheTableName, simDetailsJobsQueue, tableInfo } = fromEnv({
 	cacheTableName: 'CACHE_TABLE_NAME',
@@ -50,12 +53,15 @@ const storeHistoricalDataFunc = storeHistoricalDataInDB({
 
 const getHistoryTs = getSIMHistoryTs(db, cacheTableName)
 
+const { track, metrics } = metricsForComponent('getAllSimUsageOnomondo')
+
 export const handler = async (): Promise<void> => {
 	const dataUsage = await getSimUsageHistoryOnomondo({ apiKey })
 	if ('error' in dataUsage) {
 		return
 	}
 	const iccids = Object.keys(dataUsage)
+	let numberOfRejectedRecords = 0
 	for (const iccid of iccids) {
 		const oldHistoryTs: Date = (await getHistoryTs(iccid)) ?? TWO_MONTHS_AGO
 		const newHistoryTs: Date =
@@ -73,6 +79,11 @@ export const handler = async (): Promise<void> => {
 				console.error(historicalDataStoring.error)
 			}
 		}
+		track(
+			`storeSimInfoOnomondoRejectedRecords:${iccid}`,
+			MetricUnit.Count,
+			numberOfRejectedRecords,
+		)
 		await q({
 			payload: { iccid, newHistoryTs, storeTimestream: false },
 			deduplicationId: iccid,
