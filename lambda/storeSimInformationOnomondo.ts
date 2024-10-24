@@ -60,9 +60,10 @@ export const handler = async (event: SQSEvent): Promise<void> => {
 		try {
 			const body = JSON.parse(message.body)
 			const iccid = body.iccid
-			const historyTs: undefined | Date = MaybeDate(body.lastTs)
+			const historyTs: undefined | Date = MaybeDate(body.newHistoryTs)
 			const storeTimestream: boolean = body.storeTimestream ?? true
 			const simDetails = await fetchOnomondoSIMDetails({ iccid, apiKey })
+			console.log('simdetails!!!', simDetails)
 			if ('error' in simDetails) {
 				await putSimDetailsFunc({
 					iccid,
@@ -82,7 +83,7 @@ export const handler = async (event: SQSEvent): Promise<void> => {
 					const oldHistoryTs: Date =
 						(await getHistoryTs(iccid)) ?? TWO_MONTHS_AGO
 					const newHistoryTs: Date =
-						MaybeDate([...(dataUsage[iccid] ?? [])].sort(byTsDesc).pop()?.ts) ??
+						MaybeDate([...(dataUsage[iccid] ?? [])].sort(byTsDesc)[0]?.ts) ??
 						oldHistoryTs
 					historyTsForStoring = newHistoryTs ?? TWO_MONTHS_AGO
 					const records = getNewRecords(iccid, oldHistoryTs, dataUsage)
@@ -100,6 +101,7 @@ export const handler = async (event: SQSEvent): Promise<void> => {
 						}
 					}
 				}
+				console.log('before putting details in DynamoDB')
 				await putSimDetailsFunc({
 					iccid,
 					simExisting: true,

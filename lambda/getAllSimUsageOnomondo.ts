@@ -55,13 +55,17 @@ export const handler = async (): Promise<void> => {
 	if ('error' in dataUsage) {
 		return
 	}
+	console.log('dataUsage', dataUsage)
 	const iccids = Object.keys(dataUsage)
 	for (const iccid of iccids) {
 		const oldHistoryTs: Date = (await getHistoryTs(iccid)) ?? TWO_MONTHS_AGO
 		const newHistoryTs: Date =
-			MaybeDate([...(dataUsage[iccid] ?? [])].sort(byTsDesc).pop()?.ts) ??
+			MaybeDate([...(dataUsage[iccid] ?? [])].sort(byTsDesc)[0]?.ts) ??
 			oldHistoryTs
+		console.log('oldHistory', oldHistoryTs)
+		console.log('newHistory', newHistoryTs)
 		const records = getNewRecords(iccid, oldHistoryTs, dataUsage)
+		console.log('records', records)
 		const historicalDataStoring = await storeHistoricalDataFunc(records)
 		if ('error' in historicalDataStoring) {
 			if (historicalDataStoring.error instanceof RejectedRecordsException) {
