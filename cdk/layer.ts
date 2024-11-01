@@ -9,6 +9,9 @@ const dependencies: Array<keyof (typeof pJson)['dependencies']> = [
 	'@sinclair/typebox',
 	'e118-iin-list',
 	'@bifravst/timestream-helpers',
+	'@hello.nrfcloud.com/lambda-helpers',
+	'@middy/core',
+	'@aws-lambda-powertools/metrics',
 ]
 
 export const packBaseLayer = async (): Promise<PackedLayer> =>

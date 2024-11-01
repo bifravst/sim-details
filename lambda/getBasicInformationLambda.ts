@@ -1,7 +1,11 @@
+import { MetricUnit } from '@aws-lambda-powertools/metrics'
+import { logMetrics } from '@aws-lambda-powertools/metrics/middleware'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { SQSClient } from '@aws-sdk/client-sqs'
 import { TimestreamQueryClient } from '@aws-sdk/client-timestream-query'
 import { fromEnv } from '@bifravst/from-env'
+import { metricsForComponent } from '@hello.nrfcloud.com/lambda-helpers/metrics'
+import middy from '@middy/core'
 import type {
 	APIGatewayProxyEventV2,
 	APIGatewayProxyResultV2,
@@ -18,7 +22,6 @@ import {
 import { HistoricalDataTimeSpans } from './historicalDataTimeSpans.js'
 import { olderThan5min } from './olderThan5min.js'
 import { queueJob } from './queueJob.js'
-
 const { simDetailsJobsQueue, cacheTableName, wirelessLogicQueue, tableInfo } =
 	fromEnv({
 		simDetailsJobsQueue: 'SIM_DETAILS_JOBS_QUEUE',
@@ -40,8 +43,8 @@ const validIssuers: Record<string, string> = {
 
 const getSimDetailsFromCacheFunc = getSimDetailsFromCache(db, cacheTableName)
 const getBinIntervalFunc = getBinInterval(ts, dbName, tableName)
-
-export const handler = async (
+const { track, metrics } = metricsForComponent('getAllSimUsageOnomondo')
+const h = async (
 	event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
 	console.log(JSON.stringify(event))
@@ -50,6 +53,7 @@ export const handler = async (
 	//Check if iccid is existing
 	const issuer = identifyIssuer(iccid)
 	if (issuer === undefined) {
+		track('api:undefinedSIMIssuer', MetricUnit.Count, 1)
 		return res(toStatusCode[ErrorType.BadRequest], {
 			expires: 60,
 			contentType: 'application/problem+json',
@@ -70,6 +74,7 @@ export const handler = async (
 		issuer.issuerIdentifierNumber,
 	)
 	if (isSupportedIssuer === false) {
+		track('api:notSupportedSIMIssuer', MetricUnit.Count, 1)
 		//SIM not existing since issuer is not supported.
 		return res(toStatusCode[ErrorType.EntityNotFound], { expires: 60 })()
 	}
@@ -81,8 +86,10 @@ export const handler = async (
 				QueueUrl: validIssuers[issuer.issuerIdentifierNumber] as string,
 				sqs,
 			})({ payload: { iccid }, deduplicationId: iccid })
+			track('api:noSIMInfoCache', MetricUnit.Count, 1)
 			return res(toStatusCode[ErrorType.Conflict], { expires: 60 })()
 		}
+		track('api:SIMNotExisting', MetricUnit.Count, 1)
 		//SIM not existing
 		return res(toStatusCode[ErrorType.EntityNotFound], { expires: 60 })()
 	}
@@ -106,11 +113,15 @@ export const handler = async (
 			ts: measurement.time,
 			usedBytes: measurement['measure_value::double'],
 		}))
+		track('api:successHistory', MetricUnit.Count, 1)
 		return res(200, {
 			expires: 300,
 		})({ measurements })
 	}
+	track('api:successSimDetails', MetricUnit.Count, 1)
 	return res(200, {
 		expires: 300,
 	})(maybeSimDetails.sim)
 }
+
+export const handler = middy().use(logMetrics(metrics)).handler(h)

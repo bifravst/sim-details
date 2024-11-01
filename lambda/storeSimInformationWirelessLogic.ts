@@ -1,3 +1,5 @@
+import { MetricUnit } from '@aws-lambda-powertools/metrics'
+import { logMetrics } from '@aws-lambda-powertools/metrics/middleware'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
 import {
@@ -5,6 +7,8 @@ import {
 	TimestreamWriteClient,
 } from '@aws-sdk/client-timestream-write'
 import { fromEnv } from '@bifravst/from-env'
+import { metricsForComponent } from '@hello.nrfcloud.com/lambda-helpers/metrics'
+import middy from '@middy/core'
 import type { SQSEvent } from 'aws-lambda'
 import { wirelessLogicDataLimit } from './constants.js'
 import { getSimDetailsFromCache } from './getSimDetailsFromCache.js'
@@ -12,7 +16,6 @@ import { putSimDetails } from './putSimDetails.js'
 import { storeHistoricalDataInDB } from './storeHistoricalDataInDB.js'
 import { usageToRecord } from './usageToRecord.js'
 import { fetchWirelessLogicSIMDetails } from './wirelessLogic/fetchWirelessLogicSIMDetails.js'
-
 const ssm = new SSMClient({})
 const tsw = new TimestreamWriteClient({})
 const db = new DynamoDBClient({})
@@ -47,11 +50,15 @@ if (clientId === undefined) {
 	throw new Error(`CLIENTID undefined`)
 }
 const getSimDetailsFromCacheFunc = getSimDetailsFromCache(db, cacheTableName)
+const { track, metrics } = metricsForComponent('storeSimInfoWL')
 
-export const handler = async (event: SQSEvent): Promise<void> => {
+const h = async (event: SQSEvent): Promise<void> => {
 	console.log(JSON.stringify({ event }))
 	for (const message of event.Records) {
 		try {
+			let numberOfRecords = 0
+			let numberOfRejectedRecords = 0
+			let numberOfErrors = 0
 			const body = JSON.parse(message.body)
 			const iccid = body.iccid
 			let prevUsage = 0
@@ -89,7 +96,9 @@ export const handler = async (event: SQSEvent): Promise<void> => {
 					if ('record' in record) {
 						records.push(record.record)
 					}
+					numberOfRecords = records.length
 					const historicalDataStoring = await storeHistoricalData(records)
+
 					if ('error' in historicalDataStoring) {
 						if (
 							historicalDataStoring.error instanceof RejectedRecordsException
@@ -101,11 +110,27 @@ export const handler = async (event: SQSEvent): Promise<void> => {
 						} else {
 							console.error(historicalDataStoring.error)
 						}
+						numberOfErrors = historicalDataStoring.numberOfErrors
+						numberOfRejectedRecords =
+							historicalDataStoring.numberOfRejectedRecords
 					}
 				}
 			}
+			track(
+				`storeSimInfoWLRejectedRecords`,
+				MetricUnit.Count,
+				numberOfRejectedRecords,
+			)
+			track(`storeSimInfoWLRecordError`, MetricUnit.Count, numberOfErrors)
+			track(
+				`storeSimInfoWLRecordsWritten`,
+				MetricUnit.Count,
+				numberOfRecords - numberOfErrors - numberOfRejectedRecords,
+			)
 		} catch {
 			console.log('error processing SQSEvent', JSON.stringify(message))
 		}
 	}
 }
+
+export const handler = middy().use(logMetrics(metrics)).handler(h)
