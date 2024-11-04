@@ -11,6 +11,7 @@ import { fetchData } from './fetchData.js'
 import { fetchHistoricalData } from './fetchHistoricalData.js'
 import { getRandomICCID } from './getRandomICCID.js'
 import { getTimestampsForSeeding } from './getTimestampsForSeeding.js'
+import { roundDownDate } from './roundDownDate.js'
 import { seedingDBFunction } from './seedingDBFunction.js'
 import { seedTimestream } from './seedTimestream.js'
 
@@ -153,17 +154,17 @@ void describe('e2e-tests', () => {
 		assert.equal(await req.text(), '')
 	})
 	const expectedResLastHour = timestampsLastHour.map((ts, index) => ({
-		ts: ts.toISOString(),
+		ts: roundDownDate(ts, 5).toISOString(),
 		usedBytes: randomUsedBytesVal[index] ?? 0,
 	}))
 
 	const expectedResLastHourOnomondo = timestampsLastHour.map((ts, index) => ({
-		ts: ts.toISOString(),
+		ts: roundDownDate(ts, 5).toISOString(),
 		usedBytes: randomUsedBytesVal2[index] ?? 0,
 	}))
 
 	const expectedResLastDay = timestampsLastDay.map((ts, index) => ({
-		ts: ts.toISOString(),
+		ts: roundDownDate(ts, 15).toISOString(),
 		usedBytes: randomUsedBytesVal[index] ?? 0,
 	}))
 
