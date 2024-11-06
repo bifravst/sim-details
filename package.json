@@ -81,7 +81,7 @@
     "@bifravst/timestream-helpers": "6.0.3",
     "@hello.nrfcloud.com/lambda-helpers": "^2.0.42",
     "@middy/core": "5.5.1",
-    "@sinclair/typebox": "0.33.17",
+    "@sinclair/typebox": "0.33.18",
     "cfn-response": "1.0.1",
     "e118-iin-list": "4.1.4"
   }
