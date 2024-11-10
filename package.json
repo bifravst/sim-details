@@ -79,7 +79,7 @@
     "@aws-sdk/client-dynamodb": "3.687.0",
     "@bifravst/from-env": "3.0.2",
     "@bifravst/timestream-helpers": "6.0.3",
-    "@hello.nrfcloud.com/lambda-helpers": "^2.0.47",
+    "@hello.nrfcloud.com/lambda-helpers": "^2.0.48",
     "@middy/core": "5.5.1",
     "@sinclair/typebox": "0.33.22",
     "cfn-response": "1.0.1",
