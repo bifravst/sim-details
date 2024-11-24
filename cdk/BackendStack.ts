@@ -98,11 +98,11 @@ export class BackendStack extends Stack {
 			layerVersionName: `${Stack.of(this).stackName}-baseLayer`,
 			code: new LambdaSource(this, {
 				id: 'baseLayer',
-				zipFile: layer.layerZipFile,
+				zipFilePath: layer.layerZipFilePath,
 				hash: layer.hash,
 			}).code,
 			compatibleArchitectures: [Lambda.Architecture.ARM_64],
-			compatibleRuntimes: [Lambda.Runtime.NODEJS_20_X],
+			compatibleRuntimes: [Lambda.Runtime.NODEJS_22_X],
 		})
 
 		const resolutionJobsQueue = new SQS.Queue(this, 'resolutionJobsQueue', {
@@ -357,11 +357,11 @@ export class BackendStack extends Stack {
 			const cdkLayerVersion = new Lambda.LayerVersion(this, 'cdkLayer', {
 				code: new LambdaSource(this, {
 					id: 'cdkLayer',
-					zipFile: cdkLayer.layerZipFile,
+					zipFilePath: cdkLayer.layerZipFilePath,
 					hash: cdkLayer.hash,
 				}).code,
 				compatibleArchitectures: [Lambda.Architecture.ARM_64],
-				compatibleRuntimes: [Lambda.Runtime.NODEJS_20_X],
+				compatibleRuntimes: [Lambda.Runtime.NODEJS_22_X],
 			})
 			const domain = new APICustomDomain(this, {
 				api,

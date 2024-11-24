@@ -2,7 +2,7 @@ import { type DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import assert from 'node:assert/strict'
 import { describe, it, mock } from 'node:test'
 import { getActiveSims } from './getActiveSims.js'
-import testData from './testData/activeSimsFromDB.json'
+import testData from './testData/activeSimsFromDB.json' assert { type: 'json' }
 
 void describe('getActiveSims()', () => {
 	void it('should return an empty object if no SIMs in DB', async () => {

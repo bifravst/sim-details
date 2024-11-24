@@ -7,11 +7,11 @@ import {
 	TimestreamWriteClient,
 } from '@aws-sdk/client-timestream-write'
 import { fromEnv } from '@bifravst/from-env'
-import { metricsForComponent } from '@hello.nrfcloud.com/lambda-helpers/metrics'
 import middy from '@middy/core'
 import type { SQSEvent } from 'aws-lambda'
 import { wirelessLogicDataLimit } from './constants.js'
 import { getSimDetailsFromCache } from './getSimDetailsFromCache.js'
+import { metricsForComponent } from './metrics.js'
 import { putSimDetails } from './putSimDetails.js'
 import { storeHistoricalDataInDB } from './storeHistoricalDataInDB.js'
 import { usageToRecord } from './usageToRecord.js'

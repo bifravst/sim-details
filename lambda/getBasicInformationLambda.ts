@@ -4,7 +4,6 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { SQSClient } from '@aws-sdk/client-sqs'
 import { TimestreamQueryClient } from '@aws-sdk/client-timestream-query'
 import { fromEnv } from '@bifravst/from-env'
-import { metricsForComponent } from '@hello.nrfcloud.com/lambda-helpers/metrics'
 import middy from '@middy/core'
 import type {
 	APIGatewayProxyEventV2,
@@ -20,6 +19,7 @@ import {
 	getSimDetailsFromCache,
 } from './getSimDetailsFromCache.js'
 import { HistoricalDataTimeSpans } from './historicalDataTimeSpans.js'
+import { metricsForComponent } from './metrics.js'
 import { olderThan5min } from './olderThan5min.js'
 import { queueJob } from './queueJob.js'
 const { simDetailsJobsQueue, cacheTableName, wirelessLogicQueue, tableInfo } =

@@ -13,7 +13,8 @@ export type BackendLambdas = {
 	dailyOnomondoUpdate: PackedLambda
 }
 
-const pack = async (id: string) => packLambdaFromPath(id, `lambda/${id}.ts`)
+const pack = async (id: string) =>
+	packLambdaFromPath({ id, sourceFilePath: `lambda/${id}.ts` })
 
 export const packBackendLambdas = async (): Promise<BackendLambdas> => ({
 	getBasicSIMInformation: await pack('getBasicInformationLambda'),
@@ -23,9 +24,9 @@ export const packBackendLambdas = async (): Promise<BackendLambdas> => ({
 	),
 	getAllSimUsageOnomondo: await pack('getAllSimUsageOnomondo'),
 	getAllSimUsageWirelessLogic: await pack('getAllSimUsageWirelessLogic'),
-	createCNAMERecord: await packLambdaFromPath(
-		'createCNAMERecord',
-		'cdk/resources/api/createCNAMERecord.ts',
-	),
+	createCNAMERecord: await packLambdaFromPath({
+		id: 'createCNAMERecord',
+		sourceFilePath: 'cdk/resources/api/createCNAMERecord.ts',
+	}),
 	dailyOnomondoUpdate: await pack('dailyOnomondoUpdate'),
 })
