@@ -109,6 +109,11 @@ const h = async (
 			durationHours: timeSpans.durationHours,
 			iccid,
 		})
+		if (result == null) {
+			return res(200, {
+				expires: 300,
+			})({ measurements: [] })
+		}
 		const measurements = result.map((measurement) => ({
 			ts: measurement.time,
 			usedBytes: measurement['measure_value::double'],

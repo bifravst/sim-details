@@ -1,5 +1,6 @@
 import {
 	QueryCommand,
+	ValidationException,
 	type TimestreamQueryClient,
 } from '@aws-sdk/client-timestream-query'
 import { parseResult } from '@bifravst/timestream-helpers'
@@ -14,7 +15,7 @@ export const getBinInterval =
 		binIntervalMinutes: number
 		durationHours: number
 		iccid: string
-	}): Promise<Record<string, unknown>[]> => {
+	}): Promise<Record<string, unknown>[] | null> => {
 		const QueryString = [
 			`SELECT *`,
 			`FROM "${dbName}"."${tableName}"`,
@@ -23,10 +24,17 @@ export const getBinInterval =
 			`AND time > date_add('hour', -${durationHours}, now())`,
 			`ORDER BY bin(time, ${binIntervalMinutes}m) ASC`,
 		].join(' ')
-		const result = await ts.send(
-			new QueryCommand({
-				QueryString,
-			}),
-		)
-		return parseResult(result)
+		let result
+		try {
+			result = await ts.send(
+				new QueryCommand({
+					QueryString,
+				}),
+			)
+		} catch (err) {
+			if (err instanceof ValidationException) {
+				return null
+			}
+		}
+		return parseResult(result!)
 	}
