@@ -56,6 +56,7 @@ const { track, metrics } = metricsForComponent('getAllSimUsageWL')
 
 const h = async (): Promise<void> => {
 	const iccidAndUsage = await getSims()
+	console.log(iccidAndUsage)
 	const iccids = Object.keys(iccidAndUsage)
 	const usage = await fetchWirelessLogicSIMDetails({
 		iccid: iccids,

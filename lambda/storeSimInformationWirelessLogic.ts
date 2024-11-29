@@ -90,26 +90,30 @@ const h = async (event: SQSEvent): Promise<void> => {
 					simDetails: simDetailsToDB,
 				})
 				const diff = (simDetails.value.usedBytes[iccid] ?? 0) - prevUsage
-				const records = []
-				const record = usageToRecord({ iccid, diff })
-				if ('record' in record) {
-					records.push(record.record)
-				}
-				numberOfRecords = records.length
-				const historicalDataStoring = await storeHistoricalData(records)
-
-				if ('error' in historicalDataStoring) {
-					if (historicalDataStoring.error instanceof RejectedRecordsException) {
-						console.error(
-							`Rejected records`,
-							JSON.stringify(historicalDataStoring.error.RejectedRecords),
-						)
-					} else {
-						console.error(historicalDataStoring.error)
+				if (diff > 0) {
+					const records = []
+					const record = usageToRecord({ iccid, diff })
+					if ('record' in record) {
+						records.push(record.record)
 					}
-					numberOfErrors = historicalDataStoring.numberOfErrors
-					numberOfRejectedRecords =
-						historicalDataStoring.numberOfRejectedRecords
+					numberOfRecords = records.length
+					const historicalDataStoring = await storeHistoricalData(records)
+
+					if ('error' in historicalDataStoring) {
+						if (
+							historicalDataStoring.error instanceof RejectedRecordsException
+						) {
+							console.error(
+								`Rejected records`,
+								JSON.stringify(historicalDataStoring.error.RejectedRecords),
+							)
+						} else {
+							console.error(historicalDataStoring.error)
+						}
+						numberOfErrors = historicalDataStoring.numberOfErrors
+						numberOfRejectedRecords =
+							historicalDataStoring.numberOfRejectedRecords
+					}
 				}
 			}
 			track(
