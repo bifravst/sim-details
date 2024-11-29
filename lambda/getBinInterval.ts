@@ -1,6 +1,7 @@
 import {
 	QueryCommand,
 	ValidationException,
+	type QueryCommandOutput,
 	type TimestreamQueryClient,
 } from '@aws-sdk/client-timestream-query'
 import { parseResult } from '@bifravst/timestream-helpers'
@@ -36,5 +37,5 @@ export const getBinInterval =
 				return null
 			}
 		}
-		return parseResult(result!)
+		return parseResult(result as QueryCommandOutput)
 	}
