@@ -136,7 +136,7 @@ void describe('e2e-tests', () => {
 		assert.equal(req.headers.get('Access-Control-Allow-Origin'), '*')
 	})
 	void it('should return statusCode 409 and cache max-age=60 when the SIM information is not in DB', async () => {
-		const req = await fetchDataFunc(getRandomICCID(4573))
+		const req = await fetchDataFunc(iccidNotExistingWL)
 		const expectedCacheControl = 'public, max-age=60'
 		assert.equal(req.headers.get('cache-control'), expectedCacheControl)
 		assert.equal(req.headers.get('Access-Control-Allow-Origin'), '*')
