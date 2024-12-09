@@ -19,6 +19,7 @@ import {
 } from './getSimDetailsFromCache.js'
 import { HistoricalDataTimeSpans } from './historicalDataTimeSpans.js'
 import { listRecordsForInterval } from './listRecordsForInterval.js'
+import { metricsForComponent } from './metrics.js'
 import { olderThan5min } from './olderThan5min.js'
 import { queueJob } from './queueJob.js'
 const { simDetailsJobsQueue, cacheTableName, wirelessLogicQueue, tableInfo } =
@@ -42,8 +43,9 @@ const validIssuers: Record<string, string> = {
 
 const getSimDetailsFromCacheFunc = getSimDetailsFromCache(db, cacheTableName)
 const listRecordsForIntervalFunc = listRecordsForInterval(ts, dbName, tableName)
+const { track, metrics } = metricsForComponent('getAllSimUsageOnomondo')
 
-export const handler = async (
+const h = async (
 	event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
 	console.log(JSON.stringify(event))
@@ -110,6 +112,11 @@ export const handler = async (
 			},
 			iccid,
 		})
+		if (result == null) {
+			return res(200, {
+				expires: 300,
+			})({ measurements: [] })
+		}
 		const measurements = result.map((measurement) => ({
 			ts: measurement.time,
 			usedBytes: measurement['measure_value::double'],
@@ -131,6 +138,9 @@ export const handler = async (
 			},
 			iccid,
 		})
+		if (history == null) {
+			continue
+		}
 		let sum = 0
 		for (const h of history) {
 			sum += h['measure_value::double']

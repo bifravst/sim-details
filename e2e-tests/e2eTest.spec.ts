@@ -25,6 +25,7 @@ const iccidOld = getRandomICCID(4573)
 const iccidNewWL = getRandomICCID(4446)
 const iccidOldWL = getRandomICCID(4446)
 const iccidNotExisting = getRandomICCID(4573)
+const iccidNoHistory = getRandomICCID(4446)
 const now = new Date()
 const sixMinAgo = new Date(Date.now() - 6 * 60 * 1000)
 const timestampsLastHour = getTimestampsForSeeding(60, 5)
@@ -43,6 +44,12 @@ void describe('e2e-tests', async () => {
 			db,
 			outputs.cacheTableName,
 		)({ iccid: iccidNotExisting, simExisting: false })
+		//put noHistory SIM in DB
+		await seedingDBFunction({
+			iccid: iccidNoHistory,
+			usageTimestamp: now,
+			simDetails: { usedBytes: 0, totalBytes: 1000 },
+		})
 	})
 	for (const [
 		iccid,
@@ -240,6 +247,7 @@ void describe('e2e-tests', async () => {
 		[iccidNewWL, expectedResLastHour, 'lastHour'],
 		[iccidOldWL, expectedResLastDay, 'lastDay'],
 		[iccidNew, expectedResLastHourOnomondo, 'lastHour'],
+		[iccidNoHistory, [], 'lastHour'],
 	] as [string, Array<{ ts: string; usedBytes: number }>, string][]) {
 		void it(`should return measurements from timespan ${timespan} for iccid ${iccid}`, async () => {
 			const req = await fetchHistoricalData(APIURL)(iccid, timespan)

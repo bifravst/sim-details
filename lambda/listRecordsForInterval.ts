@@ -1,5 +1,7 @@
 import {
 	QueryCommand,
+	ValidationException,
+	type QueryCommandOutput,
 	type TimestreamQueryClient,
 } from '@aws-sdk/client-timestream-query'
 import { parseResult } from '@bifravst/timestream-helpers'
@@ -25,17 +27,24 @@ export const listRecordsForInterval =
 			'binIntervalMinutes' | 'durationHours'
 		>
 		iccid: string
-	}): Promise<historyRecordReturnType[]> => {
+	}): Promise<historyRecordReturnType[] | null> => {
 		const QueryString = getQueryString({
 			timespan: { binIntervalMinutes, durationHours },
 			iccid,
 			dbName,
 			tableName,
 		})
-		const result = await ts.send(
-			new QueryCommand({
-				QueryString,
-			}),
-		)
-		return parseResult(result)
+		let result
+		try {
+			result = await ts.send(
+				new QueryCommand({
+					QueryString,
+				}),
+			)
+		} catch (err) {
+			if (err instanceof ValidationException) {
+				return null
+			}
+		}
+		return parseResult(result as QueryCommandOutput)
 	}

@@ -28,11 +28,15 @@ export const seedTimestream =
 			return null
 		})
 		const filteredRec = records.filter(isNotNull)
-		await tsw.send(
-			new WriteRecordsCommand({
-				DatabaseName: dbName,
-				TableName: tableName,
-				Records: filteredRec,
-			}),
-		)
+		try {
+			await tsw.send(
+				new WriteRecordsCommand({
+					DatabaseName: dbName,
+					TableName: tableName,
+					Records: filteredRec,
+				}),
+			)
+		} catch (err) {
+			console.log('error', err)
+		}
 	}
