@@ -25,17 +25,21 @@ export const listRecordsForInterval =
 			'binIntervalMinutes' | 'durationHours'
 		>
 		iccid: string
-	}): Promise<historyRecordReturnType[]> => {
+	}): Promise<{ value: historyRecordReturnType[] } | { error: Error }> => {
 		const QueryString = getQueryString({
 			timespan: { binIntervalMinutes, durationHours },
 			iccid,
 			dbName,
 			tableName,
 		})
-		const result = await ts.send(
-			new QueryCommand({
-				QueryString,
-			}),
-		)
-		return parseResult(result)
-	}
+		let result
+		try {
+			result = await ts.send(
+				new QueryCommand({
+					QueryString,
+				}),
+			)
+		} catch (err) {
+			return { error: new Error('Error querying data') }
+		}
+		return { value: parseResult(result) }

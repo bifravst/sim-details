@@ -24,7 +24,6 @@ import { metricsForComponent } from './metrics.js'
 import { olderThan5min } from './olderThan5min.js'
 import { putSimHistory } from './putSimHistory.js'
 import { queueJob } from './queueJob.js'
-
 const {
 	simDetailsJobsQueue,
 	cacheTableName,
@@ -57,8 +56,8 @@ const getSimHistoryFromCacheFunc = getSimHistoryFromCache(
 	cacheHistoryTableName,
 )
 const listRecordsForIntervalFunc = listRecordsForInterval(ts, dbName, tableName)
-
 const { track, metrics } = metricsForComponent('getAllSimUsageOnomondo')
+
 const h = async (
 	event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
@@ -116,6 +115,8 @@ const h = async (
 			sqs,
 		})({ payload: { iccid }, deduplicationId: iccid })
 	}
+	//-------------------------------------------------
+
 	const timeSpanFromReq = timeSpan?.timespan ?? ''
 	const timestampUppercaseLetter =
 		timeSpanFromReq.slice(0, 4) +
@@ -139,9 +140,14 @@ const h = async (
 				},
 				iccid,
 			})
-			const measurements = result.map((measurement) => ({
-				ts: measurement.binTime,
-				usedBytes: measurement.usage,
+			if ('error' in result) {
+				return res(200, {
+					expires: 300,
+				})({ measurements: [] })
+			}
+			const measurements = result.value.map((measurement) => ({
+				ts: measurement.time,
+				usedBytes: measurement['measure_value::double'],
 			}))
 			//cache history
 			await putSimHistoryFunc({
@@ -172,8 +178,12 @@ const h = async (
 			},
 			iccid,
 		})
+		if ('error' in history) {
+			dataUsagePerTimespan[timespan] = 0
+			continue
+		}
 		let sum = 0
-		for (const h of history) {
+		for (const h of history.value) {
 			sum += h['measure_value::double']
 		}
 		dataUsagePerTimespan[timespan] = sum
