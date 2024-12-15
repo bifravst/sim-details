@@ -36,7 +36,7 @@
     "aws-cdk-lib": "2.173.1",
     "cdk": "2.173.1",
     "check-node-version": "4.2.1",
-    "commitlint": "19.6.0",
+    "commitlint": "19.6.1",
     "glob": "11.0.0",
     "husky": "9.1.7",
     "nock": "14.0.0-beta.19",
