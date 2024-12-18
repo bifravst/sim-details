@@ -80,7 +80,7 @@
     "@bifravst/from-env": "3.0.2",
     "@bifravst/timestream-helpers": "6.0.3",
     "@middy/core": "5.5.1",
-    "@sinclair/typebox": "0.34.11",
+    "@sinclair/typebox": "0.34.12",
     "cfn-response": "1.0.1",
     "e118-iin-list": "4.1.4"
   }
