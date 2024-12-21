@@ -82,6 +82,6 @@
     "@middy/core": "5.5.1",
     "@sinclair/typebox": "0.34.13",
     "cfn-response": "1.0.1",
-    "e118-iin-list": "4.3.0"
+    "e118-iin-list": "4.3.1"
   }
 }
