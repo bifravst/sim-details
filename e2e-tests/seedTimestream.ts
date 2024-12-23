@@ -9,18 +9,22 @@ const isNotNull = (value: _Record | null) => value != null
 
 export const seedTimestream =
 	(tsw: TimestreamWriteClient) =>
-	async (
-		timestamps: Array<Date>,
-		values: Array<number>,
-		iccid: string,
-		dbName: string,
-		tableName: string,
-	): Promise<void> => {
-		const records = timestamps.map((timestamp, index) => {
+	async ({
+		usage,
+		iccid,
+		dbName,
+		tableName,
+	}: {
+		usage: Array<{ ts: Date; usedBytes: number }>
+		iccid: string
+		dbName: string
+		tableName: string
+	}): Promise<void> => {
+		const records = usage.map((usage) => {
 			const record = usageToRecord({
 				iccid,
-				diff: values[index] ?? 0,
-				currentTime: timestamp,
+				diff: usage.usedBytes ?? 0,
+				currentTime: usage.ts,
 			})
 			if ('record' in record) {
 				return record.record
