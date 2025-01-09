@@ -7,12 +7,12 @@ import { before, describe, it } from 'node:test'
 import type { StackOutputs } from '../cdk/BackendStack.js'
 import { STACK_NAME } from '../cdk/stackConfig.js'
 import { putSimDetails } from '../lambda/putSimDetails.js'
-import { fetchHistoricalData } from './fetchHistoricalData.js'
-import { fetchSIM } from './fetchSIM.js'
-import { getRandomICCID } from './getRandomICCID.js'
-import { getTimestampsForSeeding } from './getTimestampsForSeeding.js'
-import { seedDynamoDB } from './seedDynamoDB.js'
-import { seedTimestream } from './seedTimestream.js'
+import { fetchHistoricalData } from './lib/fetchHistoricalData.js'
+import { fetchSIM } from './lib/fetchSIM.js'
+import { getRandomICCID } from './lib/getRandomICCID.js'
+import { getTimestampsForSeeding } from './lib/getTimestampsForSeeding.js'
+import { seedDynamoDB } from './lib/seedDynamoDB.js'
+import { seedTimestream } from './lib/seedTimestream.js'
 
 const CFclient = new CloudFormationClient()
 export const outputs = await stackOutput(CFclient)<StackOutputs>(STACK_NAME)

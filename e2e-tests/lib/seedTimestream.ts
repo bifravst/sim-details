@@ -3,7 +3,7 @@ import {
 	type _Record,
 	type TimestreamWriteClient,
 } from '@aws-sdk/client-timestream-write'
-import { usageToRecord } from '../lambda/usageToRecord.js'
+import { usageToRecord } from '../../lambda/usageToRecord.js'
 
 const isNotNull = (value: _Record | null) => value != null
 
