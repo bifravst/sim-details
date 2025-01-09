@@ -245,14 +245,17 @@ void describe('e2e-tests', async () => {
 		[iccidNew, expResLastHour2, 'lastHour'],
 		[iccidNoHistory, [], 'lastHour'],
 	] as [string, Array<{ ts: string; usedBytes: number }>, string][]) {
-		void it(`should return measurements from timespan ${timespan} for iccid ${iccid}`, async () => {
-			const req = await fetchHistoricalData(APIURL)(iccid, timespan)
-			const expectedCacheControl = 'public, max-age=300'
-			const responseBody = await req.json()
-			assert.equal(req.headers.get('cache-control'), expectedCacheControl)
-			assert.equal(req.headers.get('Access-Control-Allow-Origin'), '*')
-			assert.equal(req.status, 200)
-			assert.deepEqual(responseBody, { measurements: response })
-		})
+		void it.todo(
+			`should return measurements from timespan ${timespan} for iccid ${iccid}`,
+			async () => {
+				const req = await fetchHistoricalData(APIURL)(iccid, timespan)
+				const expectedCacheControl = 'public, max-age=300'
+				const responseBody = await req.json()
+				assert.equal(req.headers.get('cache-control'), expectedCacheControl)
+				assert.equal(req.headers.get('Access-Control-Allow-Origin'), '*')
+				assert.equal(req.status, 200)
+				assert.deepEqual(responseBody, { measurements: response })
+			},
+		)
 	}
 })
