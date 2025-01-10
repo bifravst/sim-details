@@ -44,7 +44,6 @@ const validIssuers: Record<string, string> = {
 const getSimDetailsFromCacheFunc = getSimDetailsFromCache(db, cacheTableName)
 const listRecordsForIntervalFunc = listRecordsForInterval(ts, dbName, tableName)
 const { track, metrics } = metricsForComponent('getAllSimUsageOnomondo')
-
 const h = async (
 	event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
@@ -112,12 +111,12 @@ const h = async (
 			},
 			iccid,
 		})
-		if (result == null) {
+		if ('error' in result) {
 			return res(200, {
 				expires: 300,
 			})({ measurements: [] })
 		}
-		const measurements = result.map((measurement) => ({
+		const measurements = result.value.map((measurement) => ({
 			ts: measurement.time,
 			usedBytes: measurement['measure_value::double'],
 		}))
@@ -138,11 +137,12 @@ const h = async (
 			},
 			iccid,
 		})
-		if (history == null) {
+		if ('error' in history) {
+			dataUsagePerTimespan[timespan] = 0
 			continue
 		}
 		let sum = 0
-		for (const h of history) {
+		for (const h of history.value) {
 			sum += h['measure_value::double']
 		}
 		dataUsagePerTimespan[timespan] = sum
