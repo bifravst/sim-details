@@ -18,32 +18,34 @@ void it(`should calculate the usage per timespan`, async () => {
 		simDetails: { usedBytes: 0, totalBytes: 10000000 },
 	})
 
-	const usageLastHour: Usage = [
+	const usageLastDay: Usage = [
 		{ usedBytes: randomUsage(), ts: addMinute(now, 0) },
-		{ usedBytes: randomUsage(), ts: addMinute(now, -5) },
-		{ usedBytes: randomUsage(), ts: addMinute(now, -10) },
-		{ usedBytes: randomUsage(), ts: addMinute(now, -15) },
-		{ usedBytes: randomUsage(), ts: addMinute(now, -20) },
+		{ usedBytes: randomUsage(), ts: addMinute(now, -60) },
+		{ usedBytes: randomUsage(), ts: addMinute(now, -60 * 24) },
+		{ usedBytes: randomUsage(), ts: addMinute(now, -60 * 48) },
+		{ usedBytes: randomUsage(), ts: addMinute(now, -60 * 70) },
 	]
 
 	await seedTs({
-		usage: usageLastHour,
+		usage: usageLastDay,
 		iccid,
 	})
 
 	const req = await fetch(iccid)
 	const responseBody = await req.json()
 
-	const expectedUsage = usageLastHour.reduce(
+	const expectedUsage = usageLastDay.reduce(
 		(total, { usedBytes }) => total + usedBytes,
 		0,
 	)
-
+	const expectedUsageLastHour = usageLastDay[0]!.usedBytes
+	const expectedUsageLastDay =
+		usageLastDay[0]!.usedBytes + usageLastDay[1]!.usedBytes
 	assert.deepEqual(
 		responseBody.dataUsagePerTimespan,
 		{
-			lastDay: expectedUsage,
-			lastHour: expectedUsage,
+			lastDay: expectedUsageLastDay,
+			lastHour: expectedUsageLastHour,
 			lastMonth: expectedUsage,
 			lastWeek: expectedUsage,
 		},

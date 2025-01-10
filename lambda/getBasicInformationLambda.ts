@@ -10,9 +10,11 @@ import type {
 	APIGatewayProxyResultV2,
 } from 'aws-lambda'
 import { identifyIssuer } from 'e118-iin-list'
+import { once } from 'lodash-es'
 import { ErrorType, toStatusCode } from '../api/ErrorInfo.js'
 import { res } from '../api/res.js'
 import { onomondoIIN, wirelessLogicIIN } from './constants.js'
+import { getAvailableColumns } from './getAvailableColumns.js'
 import {
 	SIMNotFoundError,
 	getSimDetailsFromCache,
@@ -22,13 +24,19 @@ import { listRecordsForInterval } from './listRecordsForInterval.js'
 import { metricsForComponent } from './metrics.js'
 import { olderThan5min } from './olderThan5min.js'
 import { queueJob } from './queueJob.js'
-const { simDetailsJobsQueue, cacheTableName, wirelessLogicQueue, tableInfo } =
-	fromEnv({
-		simDetailsJobsQueue: 'SIM_DETAILS_JOBS_QUEUE',
-		wirelessLogicQueue: 'WIRELESS_LOGIC_QUEUE',
-		cacheTableName: 'CACHE_TABLE_NAME',
-		tableInfo: 'TABLE_INFO', // db-S1mQFez6xa7o|table-RF9ZgR5BtR1K
-	})(process.env)
+const {
+	simDetailsJobsQueue,
+	cacheTableName,
+	wirelessLogicQueue,
+	tableInfo,
+	isTest,
+} = fromEnv({
+	simDetailsJobsQueue: 'SIM_DETAILS_JOBS_QUEUE',
+	wirelessLogicQueue: 'WIRELESS_LOGIC_QUEUE',
+	cacheTableName: 'CACHE_TABLE_NAME',
+	tableInfo: 'TABLE_INFO', // db-S1mQFez6xa7o|table-RF9ZgR5BtR1K
+	isTest: 'IS_TEST',
+})(process.env)
 
 const db = new DynamoDBClient({})
 const sqs = new SQSClient({})
@@ -44,7 +52,16 @@ const validIssuers: Record<string, string> = {
 const getSimDetailsFromCacheFunc = getSimDetailsFromCache(db, cacheTableName)
 const listRecordsForIntervalFunc = listRecordsForInterval(ts, dbName, tableName)
 const { track, metrics } = metricsForComponent('getAllSimUsageOnomondo')
-
+// Do not cache the result if we are in test mode
+const availableColumnsCache =
+	isTest === '1'
+		? async () => {
+				console.warn(`Fetching available columns for ${dbName}.${tableName}.`)
+				const cols = await getAvailableColumns(ts, dbName, tableName)()
+				console.warn(`Available columns`, JSON.stringify(cols))
+				return cols
+			}
+		: once(getAvailableColumns(ts, dbName, tableName))
 const h = async (
 	event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
@@ -94,6 +111,7 @@ const h = async (
 		//SIM not existing
 		return res(toStatusCode[ErrorType.EntityNotFound], { expires: 60 })()
 	}
+	const availableColumns = await availableColumnsCache()
 	const timeStampFromDB = maybeSimDetails.sim.ts
 	const isOld = olderThan5min({ timeStampFromDB })
 	if (isOld == true) {
@@ -111,13 +129,14 @@ const h = async (
 				durationHours: timeSpans.durationHours,
 			},
 			iccid,
+			availableColumns,
 		})
-		if (result == null) {
+		if ('error' in result) {
 			return res(200, {
 				expires: 300,
 			})({ measurements: [] })
 		}
-		const measurements = result.map((measurement) => ({
+		const measurements = result.value.map((measurement) => ({
 			ts: measurement.time,
 			usedBytes: measurement['measure_value::double'],
 		}))
@@ -137,12 +156,14 @@ const h = async (
 				durationHours: HistoricalDataTimeSpans[timespan]!.durationHours,
 			},
 			iccid,
+			availableColumns,
 		})
-		if (history == null) {
+		if ('error' in history) {
+			dataUsagePerTimespan[timespan] = 0
 			continue
 		}
 		let sum = 0
-		for (const h of history) {
+		for (const h of history.value) {
 			sum += h['measure_value::double']
 		}
 		dataUsagePerTimespan[timespan] = sum

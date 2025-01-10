@@ -1,7 +1,5 @@
 import {
 	QueryCommand,
-	ValidationException,
-	type QueryCommandOutput,
 	type TimestreamQueryClient,
 } from '@aws-sdk/client-timestream-query'
 import { parseResult } from '@bifravst/timestream-helpers'
@@ -21,13 +19,27 @@ export const listRecordsForInterval =
 	async ({
 		timespan: { binIntervalMinutes, durationHours },
 		iccid,
+		availableColumns,
 	}: {
 		timespan: Pick<
 			HistoricalDataTimeSpan,
 			'binIntervalMinutes' | 'durationHours'
 		>
 		iccid: string
-	}): Promise<historyRecordReturnType[] | null> => {
+		availableColumns: string[]
+	}): Promise<{ value: historyRecordReturnType[] } | { error: Error }> => {
+		const columnsForQuery = [
+			'ICCID',
+			'measure_name',
+			'time',
+			'measure_value::double',
+		]
+		const availableCols = columnsForQuery.filter((column) =>
+			availableColumns.includes(column),
+		)
+		if (columnsForQuery.length !== availableCols.length) {
+			return { error: new Error('Columns not available') }
+		}
 		const QueryString = getQueryString({
 			timespan: { binIntervalMinutes, durationHours },
 			iccid,
@@ -42,9 +54,7 @@ export const listRecordsForInterval =
 				}),
 			)
 		} catch (err) {
-			if (err instanceof ValidationException) {
-				return null
-			}
+			return { error: new Error('Error querying data') }
 		}
-		return parseResult(result as QueryCommandOutput)
+		return { value: parseResult(result) }
 	}

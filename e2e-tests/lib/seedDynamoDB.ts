@@ -8,17 +8,19 @@ export const seedDynamoDB =
 		iccid,
 		usageTimestamp,
 		simDetails,
+		simExisting,
 	}: {
 		iccid: string
 		usageTimestamp: Date
 		simDetails: { usedBytes: number; totalBytes: number }
+		simExisting?: boolean
 	}): Promise<void> => {
 		await putSimDetails(
 			db,
 			cacheTableName,
 		)({
 			iccid,
-			simExisting: true,
+			simExisting: simExisting ?? true,
 			simDetails,
 			ts: usageTimestamp,
 		})
