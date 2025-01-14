@@ -110,8 +110,8 @@ const h = async (
 			iccid,
 		})
 		const measurements = result.map((measurement) => ({
-			ts: measurement.time,
-			usedBytes: measurement['measure_value::double'],
+			ts: measurement.binTime,
+			usedBytes: measurement.usage,
 		}))
 		track('api:successHistory', MetricUnit.Count, 1)
 		return res(200, {
