@@ -94,6 +94,29 @@ export class BackendStack extends Stack {
 			value: simDetailsCacheTable.tableName,
 		})
 
+		const simHistoryCacheTable = new DynamoDB.Table(
+			this,
+			'simHistoryCacheTable',
+			{
+				billingMode: DynamoDB.BillingMode.PAY_PER_REQUEST,
+				partitionKey: {
+					name: 'iccid',
+					type: DynamoDB.AttributeType.STRING,
+				},
+				removalPolicy: isTest
+					? CloudFormation.RemovalPolicy.DESTROY
+					: CloudFormation.RemovalPolicy.RETAIN,
+				timeToLiveAttribute: 'ttl',
+				pointInTimeRecovery: !isTest,
+			},
+		)
+
+		new CfnOutput(this, 'HistoryCacheTable', {
+			exportName: `${this.stackName}:HistoryCacheTable`,
+			description: 'HistoryCacheTable for storing SIM history',
+			value: simHistoryCacheTable.tableName,
+		})
+
 		const baseLayer = new Lambda.LayerVersion(this, 'baseLayer', {
 			layerVersionName: `${Stack.of(this).stackName}-baseLayer`,
 			code: new LambdaSource(this, {
@@ -131,6 +154,7 @@ export class BackendStack extends Stack {
 					SIM_DETAILS_JOBS_QUEUE: resolutionJobsQueue.queueUrl,
 					WIRELESS_LOGIC_QUEUE: wirelessLogicQueue.queueUrl,
 					TABLE_INFO: table.ref,
+					CACHE_HISTORY_TABLE_NAME: simHistoryCacheTable.tableName,
 				},
 				initialPolicy: [
 					new IAM.PolicyStatement({
@@ -160,6 +184,7 @@ export class BackendStack extends Stack {
 			},
 		)
 		simDetailsCacheTable.grantReadData(getBasicSIMInformation.fn)
+		simHistoryCacheTable.grantReadWriteData(getBasicSIMInformation.fn)
 		resolutionJobsQueue.grantSendMessages(getBasicSIMInformation.fn)
 		wirelessLogicQueue.grantSendMessages(getBasicSIMInformation.fn)
 

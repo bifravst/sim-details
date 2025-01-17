@@ -18,17 +18,25 @@ import {
 	SIMNotFoundError,
 	getSimDetailsFromCache,
 } from './getSimDetailsFromCache.js'
+import { getSimHistoryFromCache } from './getSIMHistoryFromCache.js'
 import { HistoricalDataTimeSpans } from './historicalDataTimeSpans.js'
 import { metricsForComponent } from './metrics.js'
 import { olderThan5min } from './olderThan5min.js'
+import { putSimHistory } from './putSimHistory.js'
 import { queueJob } from './queueJob.js'
-const { simDetailsJobsQueue, cacheTableName, wirelessLogicQueue, tableInfo } =
-	fromEnv({
-		simDetailsJobsQueue: 'SIM_DETAILS_JOBS_QUEUE',
-		wirelessLogicQueue: 'WIRELESS_LOGIC_QUEUE',
-		cacheTableName: 'CACHE_TABLE_NAME',
-		tableInfo: 'TABLE_INFO', // db-S1mQFez6xa7o|table-RF9ZgR5BtR1K
-	})(process.env)
+const {
+	simDetailsJobsQueue,
+	cacheTableName,
+	wirelessLogicQueue,
+	cacheHistoryTableName,
+	tableInfo,
+} = fromEnv({
+	simDetailsJobsQueue: 'SIM_DETAILS_JOBS_QUEUE',
+	wirelessLogicQueue: 'WIRELESS_LOGIC_QUEUE',
+	cacheTableName: 'CACHE_TABLE_NAME',
+	cacheHistoryTableName: 'CACHE_HISTORY_TABLE_NAME',
+	tableInfo: 'TABLE_INFO', // db-S1mQFez6xa7o|table-RF9ZgR5BtR1K
+})(process.env)
 
 const db = new DynamoDBClient({})
 const sqs = new SQSClient({})
@@ -41,7 +49,12 @@ const validIssuers: Record<string, string> = {
 	[wirelessLogicIIN]: wirelessLogicQueue,
 }
 
+const putSimHistoryFunc = putSimHistory(db, cacheHistoryTableName)
 const getSimDetailsFromCacheFunc = getSimDetailsFromCache(db, cacheTableName)
+const getSimHistoryFromCacheFunc = getSimHistoryFromCache(
+	db,
+	cacheHistoryTableName,
+)
 const getBinIntervalFunc = getBinInterval(ts, dbName, tableName)
 const { track, metrics } = metricsForComponent('getAllSimUsageOnomondo')
 const h = async (
@@ -101,22 +114,47 @@ const h = async (
 			sqs,
 		})({ payload: { iccid }, deduplicationId: iccid })
 	}
-	const timeSpanFromReq = timeSpan?.timespan
-	const timeSpans = HistoricalDataTimeSpans[timeSpanFromReq!]
+	const timeSpanFromReq = timeSpan?.timespan ?? ''
+	const timestampUppercaseLetter =
+		timeSpanFromReq.slice(0, 4) +
+		(timeSpanFromReq.charAt(4).toUpperCase() || '') +
+		timeSpanFromReq.slice(5)
+	const timeSpans = HistoricalDataTimeSpans[timestampUppercaseLetter]
 	if (timeSpans !== undefined) {
-		const result = await getBinIntervalFunc({
-			binIntervalMinutes: timeSpans.binIntervalMinutes,
-			durationHours: timeSpans.durationHours,
+		const maybeHistory = await getSimHistoryFromCacheFunc(
 			iccid,
-		})
-		const measurements = result.map((measurement) => ({
-			ts: measurement.binTime,
-			usedBytes: measurement.usage,
-		}))
-		track('api:successHistory', MetricUnit.Count, 1)
-		return res(200, {
-			expires: 300,
-		})({ measurements })
+			timestampUppercaseLetter,
+		)
+		const isOld =
+			'simHistory' in maybeHistory
+				? olderThan5min({ timeStampFromDB: maybeHistory.simHistory.ts })
+				: false
+		if ('error' in maybeHistory || maybeHistory === undefined || isOld) {
+			const result = await getBinIntervalFunc({
+				binIntervalMinutes: timeSpans.binIntervalMinutes,
+				durationHours: timeSpans.durationHours,
+				iccid,
+			})
+			const measurements = result.map((measurement) => ({
+				ts: measurement.binTime,
+				usedBytes: measurement.usage,
+			}))
+			//cache history
+			await putSimHistoryFunc({
+				iccid,
+				timespan: timestampUppercaseLetter,
+				measurements,
+			})
+			return res(200, {
+				expires: 300,
+			})({ measurements })
+		} else {
+			const measurements = maybeHistory.simHistory.measurements
+			track('api:successHistory', MetricUnit.Count, 1)
+			return res(200, {
+				expires: 300,
+			})({ measurements })
+		}
 	}
 	track('api:successSimDetails', MetricUnit.Count, 1)
 	return res(200, {
