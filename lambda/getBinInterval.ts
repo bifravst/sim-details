@@ -4,6 +4,11 @@ import {
 } from '@aws-sdk/client-timestream-query'
 import { parseResult } from '@bifravst/timestream-helpers'
 
+export type historyRecordReturnType = {
+	usage: number
+	binTime: Date
+}
+
 export const getBinInterval =
 	(ts: TimestreamQueryClient, dbName: string, tableName: string) =>
 	async ({
@@ -14,7 +19,7 @@ export const getBinInterval =
 		binIntervalMinutes: number
 		durationHours: number
 		iccid: string
-	}): Promise<Record<string, unknown>[]> => {
+	}): Promise<historyRecordReturnType[]> => {
 		const QueryString = [
 			`SELECT SUM(measure_value::double) as usage, (bin(time,${binIntervalMinutes}m)) AS binTime`,
 			`FROM "${dbName}"."${tableName}"`,
