@@ -6,7 +6,7 @@
   "scripts": {
     "test": "find ./ -type f -name \\*.spec.ts -not -path './e2e-tests/*' -not -path './node_modules/*' -not -path './dist/*' | xargs npx tsx --test --test-reporter spec",
     "prepare": "husky && check-node-version --package",
-    "test:e2e": "npx tsx --test e2e-tests/e2eTest.spec.ts"
+    "test:e2e": "npx tsx --test e2e-tests/**.spec.ts"
   },
   "repository": {
     "type": "git",

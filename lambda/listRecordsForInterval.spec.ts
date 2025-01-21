@@ -66,6 +66,9 @@ void describe('getBinInterval', () => {
 				},
 			],
 		}
-		assert.deepEqual(binInterval, expectedRes.result)
+		assert.deepEqual(
+			'value' in binInterval && binInterval.value,
+			expectedRes.result,
+		)
 	})
 })

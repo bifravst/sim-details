@@ -43,3 +43,4 @@ export const listRecordsForInterval =
 			return { error: new Error('Error querying data') }
 		}
 		return { value: parseResult(result) }
+	}

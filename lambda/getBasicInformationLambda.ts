@@ -115,8 +115,6 @@ const h = async (
 			sqs,
 		})({ payload: { iccid }, deduplicationId: iccid })
 	}
-	//-------------------------------------------------
-
 	const timeSpanFromReq = timeSpan?.timespan ?? ''
 	const timestampUppercaseLetter =
 		timeSpanFromReq.slice(0, 4) +

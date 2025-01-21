@@ -3,23 +3,23 @@ import {
 	type _Record,
 	type TimestreamWriteClient,
 } from '@aws-sdk/client-timestream-write'
-import { usageToRecord } from '../lambda/usageToRecord.js'
+import { usageToRecord } from '../../lambda/usageToRecord.js'
 
 const isNotNull = (value: _Record | null) => value != null
 
+export type Usage = Array<{ ts: Date; usedBytes: number }>
+
 export const seedTimestream =
-	(tsw: TimestreamWriteClient) =>
-	async ({
-		usage,
-		iccid,
+	({
+		tsw,
 		dbName,
 		tableName,
 	}: {
-		usage: Array<{ ts: Date; usedBytes: number }>
-		iccid: string
+		tsw: TimestreamWriteClient
 		dbName: string
 		tableName: string
-	}): Promise<void> => {
+	}) =>
+	async ({ usage, iccid }: { usage: Usage; iccid: string }): Promise<void> => {
 		const records = usage.map((usage) => {
 			const record = usageToRecord({
 				iccid,
