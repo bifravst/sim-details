@@ -11,7 +11,6 @@ const dependencies: Array<keyof (typeof pJson)['dependencies']> = [
 	'@bifravst/timestream-helpers',
 	'@middy/core',
 	'@aws-lambda-powertools/metrics',
-	'lodash-es',
 ]
 
 export const packBaseLayer = async (): Promise<PackedLayer> =>

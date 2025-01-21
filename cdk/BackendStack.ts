@@ -131,7 +131,6 @@ export class BackendStack extends Stack {
 					SIM_DETAILS_JOBS_QUEUE: resolutionJobsQueue.queueUrl,
 					WIRELESS_LOGIC_QUEUE: wirelessLogicQueue.queueUrl,
 					TABLE_INFO: table.ref,
-					IS_TEST: isTest ? '1' : '0',
 				},
 				initialPolicy: [
 					new IAM.PolicyStatement({
