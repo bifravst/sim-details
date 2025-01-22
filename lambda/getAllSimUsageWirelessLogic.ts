@@ -73,15 +73,17 @@ const h = async (): Promise<void> => {
 		iccids.map(async (iccid) => {
 			const diff =
 				(iccidAndUsage[iccid] ?? 0) - (usage.value.usedBytes[iccid] ?? 0)
-			const record = usageToRecord({ iccid, diff })
-			if ('record' in record) {
-				records.push(record.record)
+			if (diff > 0) {
+				const record = usageToRecord({ iccid, diff })
+				if ('record' in record) {
+					records.push(record.record)
+				}
+				const simDetails = {
+					usedBytes: usage.value.usedBytes[iccid] ?? 0,
+					totalBytes: usage.value.totalBytes,
+				}
+				await putSimDetailsFunc({ iccid, simExisting: true, simDetails })
 			}
-			const simDetails = {
-				usedBytes: usage.value.usedBytes[iccid] ?? 0,
-				totalBytes: usage.value.totalBytes,
-			}
-			await putSimDetailsFunc({ iccid, simExisting: true, simDetails })
 		}),
 	)
 	let numberOfRejectedRecords = 0

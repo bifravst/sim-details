@@ -60,17 +60,12 @@ jobs:
 
       - name: Deploy solution stack
         env:
+          IS_TEST: 1
           JSII_SILENCE_WARNING_UNTESTED_NODE_VERSION: 1
         run: npx cdk deploy --require-approval never
 
       - name: Run End-to-End Tests
         run: npm run test:e2e
-
-      - name: Print failed End-to-End tests
-        if: failure()
-        run:
-          cat e2e-test-result.json | npx tsx --no-warnings
-          ./features/console-reporter.ts  --only-failed --with-timestamps
 
       - name: Clean up End-to-End test resources
         env:
