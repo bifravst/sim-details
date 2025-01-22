@@ -155,6 +155,7 @@ export class BackendStack extends Stack {
 					WIRELESS_LOGIC_QUEUE: wirelessLogicQueue.queueUrl,
 					TABLE_INFO: table.ref,
 					CACHE_HISTORY_TABLE_NAME: simHistoryCacheTable.tableName,
+					IS_TEST: isTest ? '1' : '0',
 				},
 				initialPolicy: [
 					new IAM.PolicyStatement({
