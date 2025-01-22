@@ -10,9 +10,11 @@ import type {
 	APIGatewayProxyResultV2,
 } from 'aws-lambda'
 import { identifyIssuer } from 'e118-iin-list'
+import { once } from 'lodash-es'
 import { ErrorType, toStatusCode } from '../api/ErrorInfo.js'
 import { res } from '../api/res.js'
 import { onomondoIIN, wirelessLogicIIN } from './constants.js'
+import { getAvailableColumns } from './getAvailableColumns.js'
 import {
 	SIMNotFoundError,
 	getSimDetailsFromCache,
@@ -24,18 +26,21 @@ import { metricsForComponent } from './metrics.js'
 import { olderThan5min } from './olderThan5min.js'
 import { putSimHistory } from './putSimHistory.js'
 import { queueJob } from './queueJob.js'
+
 const {
 	simDetailsJobsQueue,
 	cacheTableName,
 	wirelessLogicQueue,
 	cacheHistoryTableName,
 	tableInfo,
+	isTest,
 } = fromEnv({
 	simDetailsJobsQueue: 'SIM_DETAILS_JOBS_QUEUE',
 	wirelessLogicQueue: 'WIRELESS_LOGIC_QUEUE',
 	cacheTableName: 'CACHE_TABLE_NAME',
 	cacheHistoryTableName: 'CACHE_HISTORY_TABLE_NAME',
 	tableInfo: 'TABLE_INFO', // db-S1mQFez6xa7o|table-RF9ZgR5BtR1K
+	isTest: 'IS_TEST',
 })(process.env)
 
 const db = new DynamoDBClient({})
@@ -57,6 +62,17 @@ const getSimHistoryFromCacheFunc = getSimHistoryFromCache(
 )
 const listRecordsForIntervalFunc = listRecordsForInterval(ts, dbName, tableName)
 const { track, metrics } = metricsForComponent('getAllSimUsageOnomondo')
+
+// Do not cache the result if we are in test mode
+const availableColumnsCache =
+	isTest === '1'
+		? async () => {
+				console.warn(`Fetching available columns for ${dbName}.${tableName}.`)
+				const cols = await getAvailableColumns(ts, dbName, tableName)()
+				console.warn(`Available columns`, JSON.stringify(cols))
+				return cols
+			}
+		: once(getAvailableColumns(ts, dbName, tableName))
 
 const h = async (
 	event: APIGatewayProxyEventV2,
@@ -107,6 +123,7 @@ const h = async (
 		//SIM not existing
 		return res(toStatusCode[ErrorType.EntityNotFound], { expires: 60 })()
 	}
+	const availableColumns = await availableColumnsCache()
 	const timeStampFromDB = maybeSimDetails.sim.ts
 	const isOld = olderThan5min({ timeStampFromDB })
 	if (isOld == true) {
@@ -137,6 +154,7 @@ const h = async (
 					durationHours: timeSpans.durationHours,
 				},
 				iccid,
+				availableColumns,
 			})
 			if ('error' in result) {
 				return res(200, {
@@ -175,6 +193,7 @@ const h = async (
 				durationHours: HistoricalDataTimeSpans[timespan]!.durationHours,
 			},
 			iccid,
+			availableColumns,
 		})
 		if ('error' in history) {
 			dataUsagePerTimespan[timespan] = 0
