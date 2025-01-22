@@ -15,6 +15,7 @@ import { ErrorType, toStatusCode } from '../api/ErrorInfo.js'
 import { res } from '../api/res.js'
 import { onomondoIIN, wirelessLogicIIN } from './constants.js'
 import { getAvailableColumns } from './getAvailableColumns.js'
+import { getSimDetailsAvgUsageFromCache } from './getSimDetailsAvgUsageFromCache.js'
 import {
 	SIMNotFoundError,
 	getSimDetailsFromCache,
@@ -55,10 +56,15 @@ const validIssuers: Record<string, string> = {
 }
 
 const putSimHistoryFunc = putSimHistory(db, cacheHistoryTableName)
+const putSimAvgUsage = putSimHistory(db, cacheTableName)
 const getSimDetailsFromCacheFunc = getSimDetailsFromCache(db, cacheTableName)
 const getSimHistoryFromCacheFunc = getSimHistoryFromCache(
 	db,
 	cacheHistoryTableName,
+)
+const getSimDetailsAvgUsageFromCacheFunc = getSimDetailsAvgUsageFromCache(
+	db,
+	cacheTableName,
 )
 const listRecordsForIntervalFunc = listRecordsForInterval(ts, dbName, tableName)
 const { track, metrics } = metricsForComponent('getAllSimUsageOnomondo')
@@ -169,7 +175,7 @@ const h = async (
 			await putSimHistoryFunc({
 				iccid,
 				timespan: timestampUppercaseLetter,
-				measurements,
+				measurements: JSON.stringify(measurements),
 			})
 			return res(200, {
 				expires: 300,
@@ -183,34 +189,62 @@ const h = async (
 		}
 	}
 	track('api:successSimDetails', MetricUnit.Count, 1)
-	const timespans = Object.keys(HistoricalDataTimeSpans)
-	const dataUsagePerTimespan: Record<string, number> = {}
-	for (const timespan of timespans) {
-		const history = await listRecordsForIntervalFunc({
-			timespan: {
-				binIntervalMinutes:
-					HistoricalDataTimeSpans[timespan]!.binIntervalMinutes,
-				durationHours: HistoricalDataTimeSpans[timespan]!.durationHours,
-			},
+	const maybeSimDetailsAvgUsageFromCache =
+		await getSimDetailsAvgUsageFromCacheFunc(iccid, 'avgUsage')
+	const isOldAvgUsage =
+		'simHistory' in maybeSimDetailsAvgUsageFromCache
+			? olderThan5min({
+					timeStampFromDB: maybeSimDetailsAvgUsageFromCache.simHistory.ts,
+				})
+			: false
+	if (
+		'error' in maybeSimDetailsAvgUsageFromCache ||
+		maybeSimDetailsAvgUsageFromCache === undefined ||
+		isOldAvgUsage
+	) {
+		const timespans = Object.keys(HistoricalDataTimeSpans)
+		const dataUsagePerTimespan: Record<string, number> = {}
+		for (const timespan of timespans) {
+			const history = await listRecordsForIntervalFunc({
+				timespan: {
+					binIntervalMinutes:
+						HistoricalDataTimeSpans[timespan]!.binIntervalMinutes,
+					durationHours: HistoricalDataTimeSpans[timespan]!.durationHours,
+				},
+				iccid,
+				availableColumns,
+			})
+			if ('error' in history) {
+				dataUsagePerTimespan[timespan] = 0
+				continue
+			}
+			let sum = 0
+			for (const h of history.value) {
+				sum += h['measure_value::double']
+			}
+			dataUsagePerTimespan[timespan] = sum
+		}
+		await putSimAvgUsage({
 			iccid,
-			availableColumns,
+			timespan: 'avgUsage',
+			measurements: JSON.stringify(dataUsagePerTimespan),
 		})
-		if ('error' in history) {
-			dataUsagePerTimespan[timespan] = 0
-			continue
-		}
-		let sum = 0
-		for (const h of history.value) {
-			sum += h['measure_value::double']
-		}
-		dataUsagePerTimespan[timespan] = sum
+		return res(200, {
+			expires: 300,
+		})({
+			...maybeSimDetails.sim,
+			dataUsagePerTimespan,
+		})
+	} else {
+		const dataUsagePerTimespan =
+			maybeSimDetailsAvgUsageFromCache.simHistory.measurements
+		return res(200, {
+			expires: 300,
+		})({
+			...maybeSimDetails.sim,
+			dataUsagePerTimespan,
+		})
 	}
-	return res(200, {
-		expires: 300,
-	})({
-		...maybeSimDetails.sim,
-		dataUsagePerTimespan,
-	})
 }
 
 export const handler = middy().use(logMetrics(metrics)).handler(h)

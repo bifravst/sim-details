@@ -10,7 +10,7 @@ export const putSimHistory =
 	}: {
 		iccid: string
 		timespan: string
-		measurements: { ts: Date; usedBytes: number }[]
+		measurements: string
 		ts?: Date
 	}): Promise<void> => {
 		await db.send(
@@ -20,7 +20,7 @@ export const putSimHistory =
 					iccid: `${iccid}-${timespan}`,
 					ttl: Date.now() / 1000 + 24 * 60 * 60 * 30, // 30 days
 					timespan,
-					measurements: JSON.stringify(measurements),
+					measurements,
 					ts: (ts ?? new Date()).toISOString(),
 				}),
 			}),
