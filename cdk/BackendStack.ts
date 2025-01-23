@@ -184,7 +184,7 @@ export class BackendStack extends Stack {
 				],
 			},
 		)
-		simDetailsCacheTable.grantReadData(getBasicSIMInformation.fn)
+		simDetailsCacheTable.grantReadWriteData(getBasicSIMInformation.fn)
 		simHistoryCacheTable.grantReadWriteData(getBasicSIMInformation.fn)
 		resolutionJobsQueue.grantSendMessages(getBasicSIMInformation.fn)
 		wirelessLogicQueue.grantSendMessages(getBasicSIMInformation.fn)
