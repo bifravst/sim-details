@@ -15,7 +15,6 @@ import { ErrorType, toStatusCode } from '../api/ErrorInfo.js'
 import { res } from '../api/res.js'
 import { onomondoIIN, wirelessLogicIIN } from './constants.js'
 import { getAvailableColumns } from './getAvailableColumns.js'
-import { getSimDetailsAvgUsageFromCache } from './getSimDetailsAvgUsageFromCache.js'
 import {
 	SIMNotFoundError,
 	getSimDetailsFromCache,
@@ -62,7 +61,7 @@ const getSimHistoryFromCacheFunc = getSimHistoryFromCache(
 	db,
 	cacheHistoryTableName,
 )
-const getSimDetailsAvgUsageFromCacheFunc = getSimDetailsAvgUsageFromCache(
+const getSimDetailsAvgUsageFromCacheFunc = getSimHistoryFromCache(
 	db,
 	cacheTableName,
 )

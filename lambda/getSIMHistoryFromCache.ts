@@ -7,7 +7,7 @@ export const getSimHistoryFromCache =
 	(db: DynamoDBClient, cacheTableName: string) =>
 	async (
 		iccid: string,
-		t: string,
+		suffix: string,
 	): Promise<
 		| {
 				error: SIMNotFoundError
@@ -25,7 +25,7 @@ export const getSimHistoryFromCache =
 				KeyConditionExpression: 'iccid = :iccid',
 				ExpressionAttributeValues: {
 					[':iccid']: {
-						S: `${iccid}-${t}`,
+						S: `${iccid}-${suffix}`,
 					},
 				},
 				ProjectionExpression: 'measurements, ts',
