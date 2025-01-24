@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { MaybeDate } from './MaybeDate.js'
+import { MaybeDate } from './MaybeDate.ts'
 
 void describe('MaybeDate', () => {
 	void it('should return undefined if the input is undefined', () => {

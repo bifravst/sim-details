@@ -1,7 +1,7 @@
 import nock from 'nock'
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { fetchWirelessLogicSIMDetails } from './fetchWirelessLogicSIMDetails.js'
+import { fetchWirelessLogicSIMDetails } from './fetchWirelessLogicSIMDetails.ts'
 import activeSimsTestData1 from './testData/activeSimHistory1.json' assert { type: 'json' }
 import activeSimsTestData2 from './testData/activeSimHistory2.json' assert { type: 'json' }
 import activeSimsTestData3 from './testData/activeSimHistory3.json' assert { type: 'json' }

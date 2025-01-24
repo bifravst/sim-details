@@ -1,7 +1,7 @@
 import { QueryCommand, type DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { unmarshall } from '@aws-sdk/util-dynamodb'
-import type { historyRecordReturnType } from './getBinInterval.js'
-import { SIMNotFoundError } from './getSimDetailsFromCache.js'
+import type { historyRecordReturnType } from './getBinInterval.ts'
+import { SIMNotFoundError } from './getSimDetailsFromCache.ts'
 
 export const getSimHistoryFromCache =
 	(db: DynamoDBClient, cacheTableName: string) =>

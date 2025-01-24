@@ -4,9 +4,9 @@
   "description": "Provides usage information about SIM cards that have been shipped with Nordic Semiconductor development kits.",
   "type": "module",
   "scripts": {
-    "test": "find ./ -type f -name \\*.spec.ts -not -path './e2e-tests/*' -not -path './node_modules/*' -not -path './dist/*' | xargs npx tsx --test --test-reporter spec",
+    "test": "find ./ -type f -name \\*.spec.ts -not -path './e2e-tests/*' -not -path './node_modules/*' -not -path './dist/*' | xargs node --experimental-transform-types --test --test-reporter spec",
     "prepare": "husky && check-node-version --package",
-    "test:e2e": "npx tsx --test e2e-tests/**.spec.ts"
+    "test:e2e": "node --experimental-transform-types --test e2e-tests/**.spec.ts"
   },
   "repository": {
     "type": "git",
@@ -24,7 +24,7 @@
     "@aws-sdk/client-route-53": "3.734.0",
     "@aws-sdk/client-sqs": "3.734.0",
     "@aws-sdk/util-dynamodb": "3.734.0",
-    "@bifravst/aws-cdk-lambda-helpers": "2.3.10",
+    "@bifravst/aws-cdk-lambda-helpers": "3.0.22",
     "@bifravst/ci": "2.1.0",
     "@bifravst/cloudformation-helpers": "9.1.1",
     "@bifravst/eslint-config-typescript": "6.1.20",
@@ -42,8 +42,7 @@
     "husky": "9.1.7",
     "lint-staged": "15.4.2",
     "nock": "14.0.0-beta.19",
-    "tsmatchers": "5.0.2",
-    "tsx": "4.19.2"
+    "tsmatchers": "5.0.2"
   },
   "lint-staged": {
     "*.{md,json,yaml,yml}": [
@@ -55,7 +54,7 @@
     ]
   },
   "engines": {
-    "node": ">=22",
+    "node": ">=22.7.0",
     "npm": ">=10"
   },
   "release": {

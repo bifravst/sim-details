@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import { it } from 'node:test'
-import { addMinute } from './lib/addMinute.js'
-import { clients } from './lib/clients.js'
-import { getRandomICCID } from './lib/getRandomICCID.js'
+import { addMinute } from './lib/addMinute.ts'
+import { clients } from './lib/clients.ts'
+import { getRandomICCID } from './lib/getRandomICCID.ts'
 
 const { seedDB, fetch } = await clients()
 

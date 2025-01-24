@@ -1,4 +1,4 @@
-import type { HistoricalDataTimeSpan } from './historicalDataTimeSpans.js'
+import type { HistoricalDataTimeSpan } from './historicalDataTimeSpans.ts'
 
 export const getQueryString = ({
 	timespan: { binIntervalMinutes, durationHours },

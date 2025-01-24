@@ -5,7 +5,7 @@ import {
 	SIMNotExistingError,
 	SIMNotFoundError,
 	getSimDetailsFromCache,
-} from './getSimDetailsFromCache.js'
+} from './getSimDetailsFromCache.ts'
 
 void describe('getSimDetailsFromCache()', () => {
 	void it('should return NOT_FOUND if no data for iccid in cache', async () => {

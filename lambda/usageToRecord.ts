@@ -1,7 +1,7 @@
 import type { _Record } from '@aws-sdk/client-timestream-write'
 import { createHash } from 'crypto'
 import { identifyIssuer } from 'e118-iin-list'
-import { validIssuers } from './constants.js'
+import { validIssuers } from './constants.ts'
 
 export const checksum = (iccid: string, currentTime: Date): string => {
 	const shasum = createHash('sha1')

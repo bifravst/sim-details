@@ -17,13 +17,13 @@ import CloudFormation, {
 	Stack,
 	aws_timestream as Timestream,
 } from 'aws-cdk-lib'
-import type { BackendLambdas } from './lambdas.js'
+import type { BackendLambdas } from './lambdas.ts'
 import {
 	APICustomDomain,
 	type CustomDomain,
-} from './resources/APICustomDomain.js'
-import { ContinuousDeployment } from './resources/ContinuousDeployment.js'
-import { STACK_NAME } from './stackConfig.js'
+} from './resources/APICustomDomain.ts'
+import { ContinuousDeployment } from './resources/ContinuousDeployment.ts'
+import { STACK_NAME } from './stackConfig.ts'
 
 export class BackendStack extends Stack {
 	constructor(

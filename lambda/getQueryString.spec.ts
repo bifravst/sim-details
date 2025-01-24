@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { getQueryString } from './getQueryString.js'
+import { getQueryString } from './getQueryString.ts'
 
 void describe('getQueryString', () => {
 	void it('should get the correct querystring from the given parameters', () => {

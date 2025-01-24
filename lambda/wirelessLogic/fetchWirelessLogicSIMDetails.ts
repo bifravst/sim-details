@@ -1,7 +1,7 @@
 import { Type } from '@sinclair/typebox'
-import { formatTypeBoxErrors } from '../formatTypeBoxErrors.js'
-import { validateWithTypeBox } from '../validateWithTypeBox.js'
-import { getLast4Months } from './getLast4Months.js'
+import { formatTypeBoxErrors } from '../formatTypeBoxErrors.ts'
+import { validateWithTypeBox } from '../validateWithTypeBox.ts'
+import { getLast4Months } from './getLast4Months.ts'
 
 export type SimDetailsWL = {
 	usedBytes: Record<string, number>

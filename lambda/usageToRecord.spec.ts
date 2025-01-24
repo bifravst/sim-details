@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { usageToRecord } from './usageToRecord.js'
+import { usageToRecord } from './usageToRecord.ts'
 
 void describe('usageToRecord', () => {
 	void it('should convert an iccid and a diff in used bytes into a Timestream record', () => {

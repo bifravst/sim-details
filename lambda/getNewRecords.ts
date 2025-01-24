@@ -1,6 +1,6 @@
 import { type _Record } from '@aws-sdk/client-timestream-write'
-import type { SIMUsageHistory } from './onomondo/getAllUsedSimsOnomondo.js'
-import { usageToRecord } from './usageToRecord.js'
+import type { SIMUsageHistory } from './onomondo/getAllUsedSimsOnomondo.ts'
+import { usageToRecord } from './usageToRecord.ts'
 
 export const getNewRecords = (
 	iccid: string,

@@ -5,7 +5,7 @@ import {
 import assert from 'node:assert'
 import { describe, it, mock } from 'node:test'
 import { check, objectMatching } from 'tsmatchers'
-import { storeHistoricalDataInDB } from './storeHistoricalDataInDB.js'
+import { storeHistoricalDataInDB } from './storeHistoricalDataInDB.ts'
 
 void describe('storeHistoricalDataInDB', () => {
 	void it('should send the correct Record to Timestream', async () => {

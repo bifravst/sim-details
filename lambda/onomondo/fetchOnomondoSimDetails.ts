@@ -1,6 +1,6 @@
 import { Type, type Static } from '@sinclair/typebox'
-import { fetchAndValidate } from '../fetchAndValidate.js'
-import type { SimDetails } from '../getSimDetailsFromCache.js'
+import { fetchAndValidate } from '../fetchAndValidate.ts'
+import type { SimDetails } from '../getSimDetailsFromCache.ts'
 
 export const fetchOnomondoSIMDetails = async ({
 	iccid,

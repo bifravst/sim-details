@@ -11,21 +11,21 @@ import type {
 } from 'aws-lambda'
 import { identifyIssuer } from 'e118-iin-list'
 import { once } from 'lodash-es'
-import { ErrorType, toStatusCode } from '../api/ErrorInfo.js'
-import { res } from '../api/res.js'
-import { onomondoIIN, wirelessLogicIIN } from './constants.js'
-import { getAvailableColumns } from './getAvailableColumns.js'
+import { ErrorType, toStatusCode } from '../api/ErrorInfo.ts'
+import { res } from '../api/res.ts'
+import { onomondoIIN, wirelessLogicIIN } from './constants.ts'
+import { getAvailableColumns } from './getAvailableColumns.ts'
 import {
 	SIMNotFoundError,
 	getSimDetailsFromCache,
-} from './getSimDetailsFromCache.js'
-import { getSimHistoryFromCache } from './getSIMHistoryFromCache.js'
-import { HistoricalDataTimeSpans } from './historicalDataTimeSpans.js'
-import { listRecordsForInterval } from './listRecordsForInterval.js'
-import { metricsForComponent } from './metrics.js'
-import { olderThan5min } from './olderThan5min.js'
-import { putSimHistory } from './putSimHistory.js'
-import { queueJob } from './queueJob.js'
+} from './getSimDetailsFromCache.ts'
+import { getSimHistoryFromCache } from './getSIMHistoryFromCache.ts'
+import { HistoricalDataTimeSpans } from './historicalDataTimeSpans.ts'
+import { listRecordsForInterval } from './listRecordsForInterval.ts'
+import { metricsForComponent } from './metrics.ts'
+import { olderThan5min } from './olderThan5min.ts'
+import { putSimHistory } from './putSimHistory.ts'
+import { queueJob } from './queueJob.ts'
 
 const {
 	simDetailsJobsQueue,

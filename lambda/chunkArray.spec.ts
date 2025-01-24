@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { chunkArray } from './chunkArray.js'
+import { chunkArray } from './chunkArray.ts'
 
 void describe('chunkArray', () => {
 	void it('should divide an array into chunks', () => {

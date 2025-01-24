@@ -3,8 +3,8 @@ import {
 	type TimestreamQueryClient,
 } from '@aws-sdk/client-timestream-query'
 import { parseResult } from '@bifravst/timestream-helpers'
-import { getQueryString } from './getQueryString.js'
-import type { HistoricalDataTimeSpan } from './historicalDataTimeSpans.js'
+import { getQueryString } from './getQueryString.ts'
+import type { HistoricalDataTimeSpan } from './historicalDataTimeSpans.ts'
 
 type historyRecordReturnType = {
 	ICCID: string
