@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { byTsDesc } from './byTsDesc.js'
+import { byTsDesc } from './byTsDesc.ts'
 
 void describe('byTsDesc', () => {
 	void it('should return a positive number if the first date is earlier than the second', () => {

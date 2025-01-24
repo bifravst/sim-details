@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { olderThan5min } from './olderThan5min.js'
+import { olderThan5min } from './olderThan5min.ts'
 
 void describe('olderThan5min', () => {
 	void it('should return true if timestamp is older than 5 minutes', () => {

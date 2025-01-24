@@ -1,7 +1,7 @@
 import type { TimestreamQueryClient } from '@aws-sdk/client-timestream-query'
 import assert from 'node:assert/strict'
 import { describe, it, mock } from 'node:test'
-import { listRecordsForInterval } from './listRecordsForInterval.js'
+import { listRecordsForInterval } from './listRecordsForInterval.ts'
 
 void describe('getBinInterval', () => {
 	void it('should get bin interval from db', async () => {

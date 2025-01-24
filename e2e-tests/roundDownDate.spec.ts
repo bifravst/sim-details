@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { roundDownDate } from './roundDownDate.js'
+import { roundDownDate } from './roundDownDate.ts'
 
 void describe('roundDownDate', () => {
 	void it('should round down a date with a given interval', async () => {

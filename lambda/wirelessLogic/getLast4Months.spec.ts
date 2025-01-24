@@ -1,6 +1,6 @@
 import assert from 'node:assert'
 import { describe, it } from 'node:test'
-import { getLast4Months } from './getLast4Months.js'
+import { getLast4Months } from './getLast4Months.ts'
 
 void describe('getLast4months', () => {
 	void it('should return the last 4 months from January', () => {

@@ -1,5 +1,5 @@
 import type { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { putSimDetails } from '../../lambda/putSimDetails.js'
+import { putSimDetails } from '../../lambda/putSimDetails.ts'
 
 //put recent data on DB
 export const seedDynamoDB =

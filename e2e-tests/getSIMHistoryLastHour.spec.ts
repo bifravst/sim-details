@@ -1,10 +1,10 @@
 import assert from 'node:assert'
 import { it } from 'node:test'
-import { addMinute } from './lib/addMinute.js'
-import { clients } from './lib/clients.js'
-import { getRandomICCID } from './lib/getRandomICCID.js'
-import { randomUsage } from './lib/randomUsage.js'
-import type { Usage } from './lib/seedTimestream.js'
+import { addMinute } from './lib/addMinute.ts'
+import { clients } from './lib/clients.ts'
+import { getRandomICCID } from './lib/getRandomICCID.ts'
+import { randomUsage } from './lib/randomUsage.ts'
+import type { Usage } from './lib/seedTimestream.ts'
 
 const { seedDB, seedTs, fetchHistory } = await clients()
 

@@ -9,13 +9,13 @@ import {
 import { fromEnv } from '@bifravst/from-env'
 import middy from '@middy/core'
 import type { SQSEvent } from 'aws-lambda'
-import { wirelessLogicDataLimit } from './constants.js'
-import { getSimDetailsFromCache } from './getSimDetailsFromCache.js'
-import { metricsForComponent } from './metrics.js'
-import { putSimDetails } from './putSimDetails.js'
-import { storeHistoricalDataInDB } from './storeHistoricalDataInDB.js'
-import { usageToRecord } from './usageToRecord.js'
-import { fetchWirelessLogicSIMDetails } from './wirelessLogic/fetchWirelessLogicSIMDetails.js'
+import { wirelessLogicDataLimit } from './constants.ts'
+import { getSimDetailsFromCache } from './getSimDetailsFromCache.ts'
+import { metricsForComponent } from './metrics.ts'
+import { putSimDetails } from './putSimDetails.ts'
+import { storeHistoricalDataInDB } from './storeHistoricalDataInDB.ts'
+import { usageToRecord } from './usageToRecord.ts'
+import { fetchWirelessLogicSIMDetails } from './wirelessLogic/fetchWirelessLogicSIMDetails.ts'
 const ssm = new SSMClient({})
 const tsw = new TimestreamWriteClient({})
 const db = new DynamoDBClient({})

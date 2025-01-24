@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { it } from 'node:test'
-import { clients } from './lib/clients.js'
+import { clients } from './lib/clients.ts'
 
 const { fetch } = await clients()
 

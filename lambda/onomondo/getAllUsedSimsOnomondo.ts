@@ -1,5 +1,5 @@
 import { Type, type Static } from '@sinclair/typebox'
-import { fetchAndValidate } from '../fetchAndValidate.js'
+import { fetchAndValidate } from '../fetchAndValidate.ts'
 
 export type SIMUsage = {
 	ts: Date

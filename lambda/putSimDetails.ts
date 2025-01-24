@@ -1,6 +1,6 @@
 import { type DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb'
 import { marshall } from '@aws-sdk/util-dynamodb'
-import type { SimDetails } from './getSimDetailsFromCache.js'
+import type { SimDetails } from './getSimDetailsFromCache.ts'
 export const putSimDetails =
 	(db: DynamoDBClient, cacheTableName: string) =>
 	async ({

@@ -1,5 +1,5 @@
 import { type Static, type TObject } from '@sinclair/typebox'
-import { validateWithTypeBox } from './validateWithTypeBox.js'
+import { validateWithTypeBox } from './validateWithTypeBox.ts'
 
 export const fetchAndValidate = async <Schema extends TObject>({
 	schema,

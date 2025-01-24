@@ -2,12 +2,12 @@ import { CloudFormationClient } from '@aws-sdk/client-cloudformation'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { TimestreamWriteClient } from '@aws-sdk/client-timestream-write'
 import { stackOutput } from '@bifravst/cloudformation-helpers'
-import type { StackOutputs } from '../../cdk/BackendStack.js'
-import { STACK_NAME } from '../../cdk/stackConfig.js'
-import { fetchHistoricalData } from './fetchHistoricalData.js'
-import { fetchSIM } from './fetchSIM.js'
-import { seedDynamoDB } from './seedDynamoDB.js'
-import { seedTimestream } from './seedTimestream.js'
+import type { StackOutputs } from '../../cdk/BackendStack.ts'
+import { STACK_NAME } from '../../cdk/stackConfig.ts'
+import { fetchHistoricalData } from './fetchHistoricalData.ts'
+import { fetchSIM } from './fetchSIM.ts'
+import { seedDynamoDB } from './seedDynamoDB.ts'
+import { seedTimestream } from './seedTimestream.ts'
 
 const db = new DynamoDBClient({})
 const tsw = new TimestreamWriteClient({})

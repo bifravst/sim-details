@@ -8,7 +8,7 @@ import {
 } from 'aws-cdk-lib'
 import type { IRestApi } from 'aws-cdk-lib/aws-apigateway'
 import { Construct } from 'constructs'
-import type { BackendLambdas } from '../lambdas.js'
+import type { BackendLambdas } from '../lambdas.ts'
 
 export type CustomDomain = {
 	domainName: string

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { it } from 'node:test'
-import { clients } from './lib/clients.js'
-import { getRandomICCID } from './lib/getRandomICCID.js'
+import { clients } from './lib/clients.ts'
+import { getRandomICCID } from './lib/getRandomICCID.ts'
 
 const { seedDB, fetch } = await clients()
 

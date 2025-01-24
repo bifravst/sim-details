@@ -8,12 +8,12 @@ import {
 } from '@aws-sdk/client-timestream-write'
 import { fromEnv } from '@bifravst/from-env'
 import middy from '@middy/core'
-import { TWO_MONTHS_AGO } from './constants.js'
-import { getNewRecords } from './getNewRecords.js'
-import { getSIMHistoryTs } from './getSimDetailsFromCache.js'
-import { metricsForComponent } from './metrics.js'
-import { getSimUsageHistoryOnomondo } from './onomondo/getAllUsedSimsOnomondo.js'
-import { storeHistoricalDataInDB } from './storeHistoricalDataInDB.js'
+import { TWO_MONTHS_AGO } from './constants.ts'
+import { getNewRecords } from './getNewRecords.ts'
+import { getSIMHistoryTs } from './getSimDetailsFromCache.ts'
+import { metricsForComponent } from './metrics.ts'
+import { getSimUsageHistoryOnomondo } from './onomondo/getAllUsedSimsOnomondo.ts'
+import { storeHistoricalDataInDB } from './storeHistoricalDataInDB.ts'
 
 const ssm = new SSMClient({})
 const { cacheTableName, tableInfo } = fromEnv({

@@ -4,7 +4,7 @@ import {
 	RejectedRecordsException,
 	WriteRecordsCommand,
 } from '@aws-sdk/client-timestream-write'
-import { chunkArray } from './chunkArray.js'
+import { chunkArray } from './chunkArray.ts'
 
 export const storeHistoricalDataInDB =
 	({

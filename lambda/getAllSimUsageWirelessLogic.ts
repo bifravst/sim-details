@@ -9,13 +9,13 @@ import {
 } from '@aws-sdk/client-timestream-write'
 import { fromEnv } from '@bifravst/from-env'
 import middy from '@middy/core'
-import { wirelessLogicDataLimit } from './constants.js'
-import { metricsForComponent } from './metrics.js'
-import { putSimDetails } from './putSimDetails.js'
-import { storeHistoricalDataInDB } from './storeHistoricalDataInDB.js'
-import { usageToRecord } from './usageToRecord.js'
-import { fetchWirelessLogicSIMDetails } from './wirelessLogic/fetchWirelessLogicSIMDetails.js'
-import { getActiveSims } from './wirelessLogic/getActiveSims.js'
+import { wirelessLogicDataLimit } from './constants.ts'
+import { metricsForComponent } from './metrics.ts'
+import { putSimDetails } from './putSimDetails.ts'
+import { storeHistoricalDataInDB } from './storeHistoricalDataInDB.ts'
+import { usageToRecord } from './usageToRecord.ts'
+import { fetchWirelessLogicSIMDetails } from './wirelessLogic/fetchWirelessLogicSIMDetails.ts'
+import { getActiveSims } from './wirelessLogic/getActiveSims.ts'
 
 const ssm = new SSMClient({})
 const db = new DynamoDBClient({})

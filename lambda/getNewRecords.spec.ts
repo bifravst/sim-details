@@ -1,7 +1,7 @@
 import assert from 'node:assert'
 import { describe, it } from 'node:test'
-import { getNewRecords } from './getNewRecords.js'
-import type { SIMUsageHistory } from './onomondo/getAllUsedSimsOnomondo.js'
+import { getNewRecords } from './getNewRecords.ts'
+import type { SIMUsageHistory } from './onomondo/getAllUsedSimsOnomondo.ts'
 
 void describe('getNewRecords()', () => {
 	void it('should return a list of Records with new usage', async () => {

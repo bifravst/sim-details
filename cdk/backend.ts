@@ -1,12 +1,12 @@
 import { ACMClient } from '@aws-sdk/client-acm'
 import { IAMClient } from '@aws-sdk/client-iam'
 import { ensureGitHubOIDCProvider } from '@bifravst/ci'
-import { getCertificateForDomain } from '../aws/acm.js'
+import { getCertificateForDomain } from '../aws/acm.ts'
 import pJSON from '../package.json' assert { type: 'json' }
-import { BackendApp } from './BackendApp.js'
-import { packCDKLayer } from './cdkLayer.js'
-import { packBackendLambdas } from './lambdas.js'
-import { packBaseLayer } from './layer.js'
+import { BackendApp } from './BackendApp.ts'
+import { packCDKLayer } from './cdkLayer.ts'
+import { packBackendLambdas } from './lambdas.ts'
+import { packBaseLayer } from './layer.ts'
 
 const repoUrl = new URL(pJSON.repository.url)
 const repository = {
