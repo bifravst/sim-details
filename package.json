@@ -20,7 +20,7 @@
   "license": "BSD-3-Clause",
   "devDependencies": {
     "@aws-sdk/client-acm": "3.741.0",
-    "@aws-sdk/client-iam": "3.741.0",
+    "@aws-sdk/client-iam": "3.742.0",
     "@aws-sdk/client-route-53": "3.741.0",
     "@aws-sdk/client-sqs": "3.741.0",
     "@aws-sdk/util-dynamodb": "3.741.0",
