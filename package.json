@@ -83,7 +83,7 @@
     "@middy/core": "6.0.0",
     "@sinclair/typebox": "0.34.25",
     "cfn-response": "1.0.1",
-    "e118-iin-list": "4.3.1",
+    "e118-iin-list": "4.4.1",
     "lodash-es": "4.17.21"
   }
 }
