@@ -81,7 +81,7 @@
     "@bifravst/from-env": "3.0.2",
     "@bifravst/timestream-helpers": "6.1.0",
     "@middy/core": "6.0.0",
-    "@sinclair/typebox": "0.34.26",
+    "@sinclair/typebox": "0.34.27",
     "cfn-response": "1.0.1",
     "e118-iin-list": "4.4.1",
     "lodash-es": "4.17.21"
