@@ -21,12 +21,6 @@ void it(`should return correct response body`, async () => {
 	assert.deepEqual(
 		responseBody,
 		{
-			dataUsagePerTimespan: {
-				lastHour: 0,
-				lastDay: 0,
-				lastWeek: 0,
-				lastMonth: 0,
-			},
 			totalBytes: 10_000_000,
 			ts: addMinute(now, -6).toISOString(),
 			usedBytes: 0,
