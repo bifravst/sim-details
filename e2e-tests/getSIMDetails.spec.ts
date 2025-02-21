@@ -25,12 +25,6 @@ void it(`should return statusCode 200, cache max-age=300 and correct body`, asyn
 	assert.deepEqual(
 		responseBody,
 		{
-			dataUsagePerTimespan: {
-				lastHour: 0,
-				lastDay: 0,
-				lastWeek: 0,
-				lastMonth: 0,
-			},
 			totalBytes: 10_000_000,
 			ts: now.toISOString(),
 			usedBytes: 0,
