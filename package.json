@@ -33,7 +33,7 @@
     "@types/aws-lambda": "8.10.147",
     "@types/cfn-response": "1.0.8",
     "@types/lodash-es": "4.17.12",
-    "@types/node": "22.13.4",
+    "@types/node": "22.13.5",
     "aws-cdk-lib": "2.180.0",
     "cdk": "2.1000.2",
     "check-node-version": "4.2.1",
