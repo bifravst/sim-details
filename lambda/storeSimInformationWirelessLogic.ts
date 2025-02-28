@@ -10,7 +10,10 @@ import { fromEnv } from '@bifravst/from-env'
 import middy from '@middy/core'
 import type { SQSEvent } from 'aws-lambda'
 import { wirelessLogicDataLimit } from './constants.ts'
-import { getSimDetailsFromCache } from './getSimDetailsFromCache.ts'
+import {
+	getSimDetailsFromCache,
+	SIMMissingFromVendorAPI,
+} from './getSimDetailsFromCache.ts'
 import { metricsForComponent } from './metrics.ts'
 import { putSimDetails } from './putSimDetails.ts'
 import { storeHistoricalDataInDB } from './storeHistoricalDataInDB.ts'
@@ -73,11 +76,21 @@ const h = async (event: SQSEvent): Promise<void> => {
 				wirelessLogicDataLimit,
 			})
 			if ('error' in simDetails) {
+				if (simDetails.error instanceof SIMMissingFromVendorAPI) {
+					await putSimDetailsFunc({
+						iccid,
+						simExisting: false,
+						simDetails: undefined,
+						SIMMissingFromVendorAPI: true,
+						ttl: Date.now() / 1000 + 24 * 60 * 60 * 7, // 7 days
+					})
+				}
 				console.error(simDetails.error)
 				await putSimDetailsFunc({
 					iccid,
 					simExisting: false,
 					simDetails: undefined,
+					SIMMissingFromVendorAPI: false,
 				})
 			} else {
 				const simDetailsToDB = {
@@ -88,6 +101,7 @@ const h = async (event: SQSEvent): Promise<void> => {
 					iccid,
 					simExisting: true,
 					simDetails: simDetailsToDB,
+					SIMMissingFromVendorAPI: false,
 				})
 				const diff = (simDetails.value.usedBytes[iccid] ?? 0) - prevUsage
 				if (diff > 0) {

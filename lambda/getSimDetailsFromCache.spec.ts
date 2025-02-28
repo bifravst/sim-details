@@ -2,6 +2,7 @@ import type { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import assert from 'node:assert/strict'
 import { describe, it, mock } from 'node:test'
 import {
+	SIMMissingFromVendorAPI,
 	SIMNotExistingError,
 	SIMNotFoundError,
 	getSimDetailsFromCache,
@@ -46,6 +47,31 @@ void describe('getSimDetailsFromCache()', () => {
 		const simDetails = await getSimDetailsFromCache(db, cacheTableName)(iccid)
 		assert.equal(
 			'error' in simDetails && simDetails.error instanceof SIMNotExistingError,
+			true,
+		)
+	})
+	void it('should return SIMMissingFromVendorAPI if SIM is not existing', async () => {
+		const cacheTableName = 'cacheTable'
+		const iccid = '1234567890'
+		const dynamoDbSend = mock.fn(async () =>
+			Promise.resolve({
+				Items: [
+					{
+						SIMMissingFromVendorAPI: { B: true },
+						ts: { N: 1719219232398 },
+						usedBytes: { N: 0 },
+						totalBytes: { N: 0 },
+					},
+				],
+			}),
+		)
+		const db: DynamoDBClient = {
+			send: dynamoDbSend,
+		} as any
+		const simDetails = await getSimDetailsFromCache(db, cacheTableName)(iccid)
+		assert.equal(
+			'error' in simDetails &&
+				simDetails.error instanceof SIMMissingFromVendorAPI,
 			true,
 		)
 	})

@@ -9,11 +9,13 @@ export const seedDynamoDB =
 		usageTimestamp,
 		simDetails,
 		simExisting,
+		SIMMissingFromVendorAPI,
 	}: {
 		iccid: string
 		usageTimestamp: Date
 		simDetails: { usedBytes: number; totalBytes: number }
 		simExisting?: boolean
+		SIMMissingFromVendorAPI?: boolean
 	}): Promise<void> => {
 		await putSimDetails(
 			db,
@@ -21,6 +23,7 @@ export const seedDynamoDB =
 		)({
 			iccid,
 			simExisting: simExisting ?? true,
+			SIMMissingFromVendorAPI: SIMMissingFromVendorAPI ?? false,
 			simDetails,
 			ts: usageTimestamp,
 		})

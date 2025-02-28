@@ -82,7 +82,12 @@ const h = async (): Promise<void> => {
 					usedBytes: usage.value.usedBytes[iccid] ?? 0,
 					totalBytes: usage.value.totalBytes,
 				}
-				await putSimDetailsFunc({ iccid, simExisting: true, simDetails })
+				await putSimDetailsFunc({
+					iccid,
+					simExisting: true,
+					simDetails,
+					SIMMissingFromVendorAPI: false,
+				})
 			}
 		}),
 	)

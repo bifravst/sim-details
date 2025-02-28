@@ -1,5 +1,6 @@
 import { Type } from '@sinclair/typebox'
 import { formatTypeBoxErrors } from '../formatTypeBoxErrors.ts'
+import { SIMMissingFromVendorAPI } from '../getSimDetailsFromCache.ts'
 import { validateWithTypeBox } from '../validateWithTypeBox.ts'
 import { getLast4Months } from './getLast4Months.ts'
 
@@ -20,15 +21,31 @@ export const fetchWirelessLogicSIMDetails = async ({
 	clientId: string
 	wirelessLogicDataLimit: number
 	startDate?: Date
-}): Promise<{ value: SimDetailsWL } | { error: Error }> => {
+}): Promise<
+	{ value: SimDetailsWL } | { error: Error | SIMMissingFromVendorAPI }
+> => {
+	//check if SIM in API
 	const wirelessLogicURL = 'https://simpro4.wirelesslogic.com/api/v3/'
+	const simDetails = await fetch(
+		`https://simpro4.wirelesslogic.com/api/v3/sims/details?identifiers=${Array.isArray(iccid) ? iccid.toString() : iccid}`,
+		{
+			headers: { 'x-api-client': clientId, 'x-api-key': apiKey },
+		},
+	)
+	const simDetailsRes = await simDetails.json()
+	if (simDetailsRes.length === 0) {
+		return { error: new SIMMissingFromVendorAPI(iccid.toString()) }
+	}
+	const iccidsInApi = simDetailsRes.map((sim: { iccid: string }) => sim.iccid)
 	const usage: Record<string, number> = {}
 	const months = startDate ? getLast4Months(startDate) : getLast4Months()
 	//api provides history for the last 3 months
 	for (const month of months) {
 		const searchParam = {
 			month: String(month),
-			identifiers: Array.isArray(iccid) ? iccid.toString() : iccid,
+			identifiers: Array.isArray(iccidsInApi)
+				? iccidsInApi.toString()
+				: iccidsInApi,
 		}
 		const url = new URL(
 			`sims/usage-history?${new URLSearchParams(searchParam).toString()}`,
