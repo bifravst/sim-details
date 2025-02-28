@@ -6,15 +6,19 @@ export const putSimDetails =
 	async ({
 		iccid,
 		simExisting,
+		SIMMissingFromVendorAPI,
 		simDetails,
 		historyTs,
 		ts,
+		ttl,
 	}: {
 		iccid: string
 		simExisting: boolean
+		SIMMissingFromVendorAPI: boolean
 		simDetails?: SimDetails
 		historyTs?: Date
 		ts?: Date
+		ttl?: number
 	}): Promise<void> => {
 		await db.send(
 			new PutItemCommand({
@@ -22,10 +26,11 @@ export const putSimDetails =
 				Item: marshall({
 					iccid,
 					historyTs: historyTs ? historyTs.toISOString() : null,
-					ttl: Date.now() / 1000 + 24 * 60 * 60 * 30, // 30 days
+					ttl: ttl ?? Date.now() / 1000 + 24 * 60 * 60 * 30, // 30 days
 					usedBytes: simDetails?.usedBytes ?? 0,
 					totalBytes: simDetails?.totalBytes ?? 0,
 					SIMExisting: simExisting,
+					SIMMissingFromVendorAPI,
 					ts: (ts ?? new Date()).toISOString(),
 				}),
 			}),

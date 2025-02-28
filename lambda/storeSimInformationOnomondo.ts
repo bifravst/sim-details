@@ -71,6 +71,7 @@ const h = async (event: SQSEvent): Promise<void> => {
 					iccid,
 					simExisting: false,
 					simDetails: undefined,
+					SIMMissingFromVendorAPI: false,
 				})
 			} else {
 				let historyTsForStoring = historyTs
@@ -134,6 +135,7 @@ const h = async (event: SQSEvent): Promise<void> => {
 					simExisting: true,
 					simDetails: simDetails.value,
 					historyTs: historyTsForStoring,
+					SIMMissingFromVendorAPI: false,
 				})
 			}
 		} catch {

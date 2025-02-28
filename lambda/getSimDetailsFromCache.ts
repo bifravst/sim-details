@@ -12,7 +12,7 @@ export const getSimDetailsFromCache =
 		iccid: string,
 	): Promise<
 		| {
-				error: SIMNotFoundError | SIMNotExistingError
+				error: SIMNotFoundError | SIMNotExistingError | SIMMissingFromVendorAPI
 		  }
 		| {
 				sim: SimDetails & {
@@ -31,7 +31,7 @@ export const getSimDetailsFromCache =
 					},
 				},
 				ProjectionExpression:
-					'usedBytes, totalBytes, SIMExisting, ts, historyTs',
+					'usedBytes, totalBytes, SIMExisting, SIMMissingFromVendorAPI, ts, historyTs',
 				Limit: 1,
 			}),
 		)
@@ -40,7 +40,9 @@ export const getSimDetailsFromCache =
 		if (sim === undefined) {
 			return { error: new SIMNotFoundError(iccid) }
 		}
-
+		if (sim.SIMMissingFromVendorAPI === true) {
+			return { error: new SIMMissingFromVendorAPI(iccid) }
+		}
 		//SIM is not existing
 		if (sim.SIMExisting === false) {
 			return { error: new SIMNotExistingError(iccid) }
@@ -84,5 +86,13 @@ export class SIMNotExistingError extends Error {
 		super(`SIM not existing: ${iccid}`)
 		this.iccid = iccid
 		this.name = 'SIMNotExistingError'
+	}
+}
+export class SIMMissingFromVendorAPI extends Error {
+	public readonly iccid: string
+	constructor(iccid: string) {
+		super(`SIM data missing in vendor API: ${iccid}`)
+		this.iccid = iccid
+		this.name = 'SIMMissingFromVendorAPI'
 	}
 }

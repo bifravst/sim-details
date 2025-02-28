@@ -16,6 +16,7 @@ import { res } from '../api/res.ts'
 import { onomondoIIN, wirelessLogicIIN } from './constants.ts'
 import { getAvailableColumns } from './getAvailableColumns.ts'
 import {
+	SIMMissingFromVendorAPI,
 	SIMNotFoundError,
 	getSimDetailsFromCache,
 } from './getSimDetailsFromCache.ts'
@@ -118,6 +119,10 @@ const h = async (
 			})({ payload: { iccid }, deduplicationId: iccid })
 			track('api:noSIMInfoCache', MetricUnit.Count, 1)
 			return res(toStatusCode[ErrorType.Conflict], { expires: 60 })()
+		}
+		if (maybeSimDetails.error instanceof SIMMissingFromVendorAPI) {
+			track('api:SIMMissingFromVendorAPI', MetricUnit.Count, 1)
+			return res(200, { expires: 60 })()
 		}
 		track('api:SIMNotExisting', MetricUnit.Count, 1)
 		//SIM not existing
