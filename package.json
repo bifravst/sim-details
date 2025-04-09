@@ -35,7 +35,7 @@
     "@types/lodash-es": "4.17.12",
     "@types/node": "22.14.0",
     "aws-cdk-lib": "2.188.0",
-    "cdk": "2.1007.0",
+    "cdk": "3.0.0",
     "check-node-version": "4.2.1",
     "commitlint": "19.8.0",
     "glob": "11.0.1",
