@@ -22,7 +22,7 @@
     "@aws-sdk/client-acm": "3.848.0",
     "@aws-sdk/client-iam": "3.848.0",
     "@aws-sdk/client-route-53": "3.848.0",
-    "@aws-sdk/client-sqs": "3.848.0",
+    "@aws-sdk/client-sqs": "3.854.0",
     "@aws-sdk/util-dynamodb": "3.848.0",
     "@bifravst/aws-cdk-lambda-helpers": "3.1.5",
     "@bifravst/ci": "2.1.1",
