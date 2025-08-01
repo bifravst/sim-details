@@ -41,7 +41,7 @@
     "glob": "11.0.3",
     "husky": "9.1.7",
     "lint-staged": "15.5.2",
-    "nock": "14.0.7",
+    "nock": "14.0.8",
     "tsmatchers": "5.0.2"
   },
   "lint-staged": {
