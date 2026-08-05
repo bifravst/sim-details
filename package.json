@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "find ./ -type f -name \\*.spec.ts -not -path './e2e-tests/*' -not -path './node_modules/*' -not -path './dist/*' | xargs node --experimental-transform-types --test --test-reporter spec",
-    "prepare": "husky && check-node-version --package",
+    "prepare": "husky && case \"$npm_command\" in install|ci) check-node-version --package ;; esac",
     "test:e2e": "node --experimental-transform-types --test e2e-tests/**.spec.ts"
   },
   "repository": {
@@ -55,7 +55,7 @@
   },
   "engines": {
     "node": ">=22.7.0",
-    "npm": ">=10"
+    "npm": ">=12.0.2 <13"
   },
   "release": {
     "branches": [
