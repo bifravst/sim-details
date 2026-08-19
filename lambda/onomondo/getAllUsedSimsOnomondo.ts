@@ -76,8 +76,7 @@ export const fetchAllPaginatedData = async ({
 			const hasMore = apiRes.value.pagination.has_more
 			for (const usageChunk of apiRes.value.usage) {
 				const dateString = `${usageChunk.time.replace(' ', 'T')}.000Z`
-				if (localRes[usageChunk.iccid] === undefined)
-					localRes[usageChunk.iccid] = []
+				localRes[usageChunk.iccid] ??= []
 				localRes[usageChunk.iccid]!.push({
 					usedBytes: usageChunk.bytes,
 					billId: usageChunk.bill_id,

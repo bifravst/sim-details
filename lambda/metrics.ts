@@ -16,12 +16,10 @@ export const metricsForComponent = (
 	metrics: Metrics
 	track: AddMetricsFn
 } => {
-	if (registry[component] === undefined) {
-		registry[component] = new Metrics({
-			namespace,
-			serviceName: component,
-		})
-	}
+	registry[component] ??= new Metrics({
+		namespace,
+		serviceName: component,
+	})
 	const metrics = registry[component]
 	return {
 		metrics,

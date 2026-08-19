@@ -13,8 +13,7 @@ export const getActiveSims =
 		for (const sim of sims) {
 			const issuer = identifyIssuer(sim.iccid)
 			if (
-				issuer !== undefined &&
-				issuer.issuerIdentifierNumber === wirelessLogicIIN &&
+				issuer?.issuerIdentifierNumber === wirelessLogicIIN &&
 				sim.SIMExisting === true
 			) {
 				iccids.push(sim.iccid)

@@ -53,7 +53,7 @@ export const listRecordsForInterval =
 					QueryString,
 				}),
 			)
-		} catch (err) {
+		} catch {
 			return { error: new Error('Error querying data') }
 		}
 		return { value: parseResult(result) }
