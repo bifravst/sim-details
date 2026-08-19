@@ -2,9 +2,9 @@ import nock from 'nock'
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 import { getSimUsageHistoryOnomondo } from './getAllUsedSimsOnomondo.ts'
-import testData from './testData/Onomondo-AllSims.json' assert { type: 'json' }
-import testData2 from './testData/Onomondo-AllSims2.json' assert { type: 'json' }
-import testData3 from './testData/Onomondo-usageExample.json' assert { type: 'json' }
+import testData from './testData/Onomondo-AllSims.json' with { type: 'json' }
+import testData2 from './testData/Onomondo-AllSims2.json' with { type: 'json' }
+import testData3 from './testData/Onomondo-usageExample.json' with { type: 'json' }
 
 void describe('getAllICCIDFromOnomondo', () => {
 	void it('should return the iccids and usage from all SIMs', async () => {

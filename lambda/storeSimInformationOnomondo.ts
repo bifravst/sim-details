@@ -142,4 +142,6 @@ const h = async (event: SQSEvent): Promise<void> => {
 	}
 }
 
-export const handler = middy().use(logMetrics(metrics)).handler(h)
+export const handler = middy<SQSEvent, void>()
+	.use(logMetrics(metrics))
+	.handler(h)

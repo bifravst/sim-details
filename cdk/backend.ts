@@ -2,7 +2,7 @@ import { ACMClient } from '@aws-sdk/client-acm'
 import { IAMClient } from '@aws-sdk/client-iam'
 import { ensureGitHubOIDCProvider } from '@bifravst/ci'
 import { getCertificateForDomain } from '../aws/acm.ts'
-import pJSON from '../package.json' assert { type: 'json' }
+import pJSON from '../package.json' with { type: 'json' }
 import { BackendApp } from './BackendApp.ts'
 import { packCDKLayer } from './cdkLayer.ts'
 import { packBackendLambdas } from './lambdas.ts'

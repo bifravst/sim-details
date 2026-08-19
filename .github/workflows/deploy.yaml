@@ -26,7 +26,7 @@ jobs:
     environment: production
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.inputs.ref }}
 
@@ -37,9 +37,9 @@ jobs:
           VERSION=`git describe --abbrev=0 --tags --always | tr -d '\n'`
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: "22.x"
+          node-version: ">=24.19.0 <25"
           cache: "npm"
 
       - name: Install NPM version specified in package.json
@@ -49,7 +49,7 @@ jobs:
         run: npm ci --no-audit
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_ROLE }}
           aws-region: ${{ vars.AWS_REGION }}

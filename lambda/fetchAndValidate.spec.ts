@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 import { fetchAndValidate } from './fetchAndValidate.ts'
 import { SimInfo } from './onomondo/fetchOnomondoSimDetails.ts'
-import testData from './onomondo/testData/Onomondo-example.json' assert { type: 'json' }
+import testData from './onomondo/testData/Onomondo-example.json' with { type: 'json' }
 
 void describe('fetchAndValidate', () => {
 	void it('should fetch the Onomondo SIM details', async () => {

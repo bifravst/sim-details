@@ -188,4 +188,6 @@ const h = async (
 	})(maybeSimDetails.sim)
 }
 
-export const handler = middy().use(logMetrics(metrics)).handler(h)
+export const handler = middy<APIGatewayProxyEventV2, APIGatewayProxyResultV2>()
+	.use(logMetrics(metrics))
+	.handler(h)
