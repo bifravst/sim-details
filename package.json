@@ -83,7 +83,7 @@
     "@aws-sdk/client-sts": "3.1120.0",
     "@bifravst/from-env": "4.0.0",
     "@bifravst/timestream-helpers": "7.0.0",
-    "@middy/core": "7.8.0",
+    "@middy/core": "7.9.2",
     "@sinclair/typebox": "0.34.52",
     "cfn-response": "1.0.1",
     "e118-iin-list": "4.5.1",
