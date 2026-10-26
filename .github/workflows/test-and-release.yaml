@@ -16,7 +16,7 @@ env:
 
 jobs:
   e2e-tests:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
 
     timeout-minutes: 30
 
@@ -81,7 +81,7 @@ jobs:
     needs:
       - e2e-tests
 
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
 
     if: github.ref == 'refs/heads/saga'
 
