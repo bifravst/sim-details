@@ -4,9 +4,9 @@
   "description": "Provides usage information about SIM cards that have been shipped with Nordic Semiconductor development kits.",
   "type": "module",
   "scripts": {
-    "test": "find ./ -type f -name \\*.spec.ts -not -path './e2e-tests/*' -not -path './node_modules/*' -not -path './dist/*' | xargs node --experimental-transform-types --test --test-reporter spec",
+    "test": "find ./ -type f -name \\*.spec.ts -not -path './e2e-tests/*' -not -path './node_modules/*' -not -path './dist/*' | xargs node --test --test-reporter spec",
     "prepare": "husky && case \"$npm_command\" in install|ci) check-node-version --package ;; esac",
-    "test:e2e": "node --experimental-transform-types --test e2e-tests/**.spec.ts"
+    "test:e2e": "node --test e2e-tests/**.spec.ts"
   },
   "repository": {
     "type": "git",

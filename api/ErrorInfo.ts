@@ -1,11 +1,12 @@
-export enum ErrorType {
-	EntityNotFound = 'EntityNotFound',
-	BadRequest = 'BadRequest',
-	AccessDenied = 'AccessDenied',
-	InternalError = 'InternalError',
-	Conflict = 'Conflict',
-	BadGateway = 'BadGateway',
-}
+export const ErrorType = {
+	EntityNotFound: 'EntityNotFound',
+	BadRequest: 'BadRequest',
+	AccessDenied: 'AccessDenied',
+	InternalError: 'InternalError',
+	Conflict: 'Conflict',
+	BadGateway: 'BadGateway',
+} as const
+export type ErrorType = (typeof ErrorType)[keyof typeof ErrorType]
 
 export type ErrorInfo = {
 	type: ErrorType
