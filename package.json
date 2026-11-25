@@ -41,7 +41,7 @@
     "commitlint": "21.2.4",
     "glob": "13.0.7",
     "husky": "9.1.7",
-    "lint-staged": "17.6.1",
+    "lint-staged": "17.6.2",
     "nock": "15.0.6",
     "tsmatchers": "6.0.2",
     "typescript": "npm:@typescript/typescript6@6.0.2"
